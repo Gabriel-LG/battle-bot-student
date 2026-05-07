@@ -206,6 +206,44 @@ namespace battle_bot {
         return speed < 0 ? -power : power;
     }
 
+    //% block
+    export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number) : number
+    {
+        let magnitude = Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
+        let angle = Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
+
+        let leftSpeed: number = 0;
+        let rightSpeed: number = 0;
+
+        //relinearize the angle
+        if(Math.abs(angle)< 0.75)
+        {
+            angle = angle / 0.75 / 2;
+        } 
+        else if(angle > 0)
+        {
+            angle = 1 - (1 - angle) / 0.25 / 2;
+        }
+        else //if(angle < 0)
+        {
+            angle = -1 + (1 + angle) / 0.25 / 2;
+        }
+
+        if(stickY >= 0) //forward
+        {
+            leftSpeed = magnitude + magnitude * angle;
+            rightSpeed = magnitude - magnitude * angle;
+        }
+        else //reverse
+        {
+            leftSpeed = -magnitude + magnitude * angle;
+            rightSpeed = -magnitude - magnitude * angle;
+        }
+
+        if(motor == Motor.left) return leftSpeed;
+        else return rightSpeed;
+    }
+
     radio.onReceivedBuffer((buffer: Buffer) =>
         {
             let id = buffer.getUint8(0);
