@@ -231,13 +231,13 @@ namespace battle_bot {
 
         if(stickY >= 0) //forward
         {
-            leftSpeed = magnitude + magnitude * angle;
-            rightSpeed = magnitude - magnitude * angle;
+            leftSpeed = magnitude + magnitude * angle * 2;
+            rightSpeed = magnitude - magnitude * angle * 2;
         }
         else //reverse
         {
-            leftSpeed = -magnitude + magnitude * angle;
-            rightSpeed = -magnitude - magnitude * angle;
+            leftSpeed = -magnitude + magnitude * angle * 2;
+            rightSpeed = -magnitude - magnitude * angle * 2;
         }
 
         if(motor == Motor.left) return leftSpeed;
