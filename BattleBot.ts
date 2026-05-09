@@ -45,13 +45,6 @@ namespace battle_bot {
         control.runInParallel(backGroundTask);
         started = true;
     }
-    
-    //% block
-    //% blockSetVariable=strip
-    export function initLeds() : neopixel.Strip
-    {
-        return neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB);
-    }
 
     //% block
     //% group="Driving"
@@ -303,10 +296,17 @@ namespace battle_bot {
     }
 
     //% block
-    //% group=lights
+    //% group=Lights
     export function frontLed(led: FrontLed, on: boolean): void {
         if (led == FrontLed.Left) pins.P8.digitalWrite(on);
         else if (led == FrontLed.Right) pins.P12.digitalWrite(on);
+    }
+
+    //% block
+    //% group=Lights
+    //% blockSetVariable=strip
+    export function initLeds(): neopixel.Strip {
+        return neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB);
     }
 
     //% block
