@@ -21,22 +21,23 @@ namespace battle_bot {
         started = true;
     }
 
+
     //% block
     //% group="Driving"
     export function setMotorPower(motor: Motor, speed: number) {
+        if (motor != Motor.Left && motor != Motor.Right) return; //sanity check
+        
         if (blockDrive) speed = 0;
-        //writing the same (low) power to the motor controller will make the motors jitter occasionally.
-        //buffering the last written value circomvents this issue
-        if (motor == Motor.left && speed == leftPower) return;
-        else leftPower = speed;
-        if (motor == Motor.right && speed == rightPower) return;
-        else rightPower = speed;
 
         let buf = pins.createBuffer(3);
         buf[0] = <uint8>motor;
         buf[1] = speed > 0 ? 0 : 1;
         buf[2] = <uint8>Math.clamp(0, 255, Math.abs(speed) * 255);
-        pins.i2cWriteBuffer(0x10, buf);
+        
+        for (let retries = 0; retries < 3; retries++)
+        {
+            if(pins.i2cWriteBuffer(0x10, buf) == 0) break;
+        }
     }
 
     //% block
@@ -87,7 +88,7 @@ namespace battle_bot {
             rightSpeed = -magnitude - magnitude * angle * 2;
         }
 
-        if (motor == Motor.left) return leftSpeed;
+        if (motor == Motor.Left) return leftSpeed;
         else return rightSpeed;
     }
 
@@ -115,6 +116,99 @@ namespace battle_bot {
     export function getButtonState(button: Button): boolean {
         return buttonHandlers[button].pressed;
     }
+
+    /* **************** copied from DFRobot Maqueen extension ****************** */
+    let state1 = 0;
+    /**
+     * Read ultrasonic sensor.
+     */
+
+    // % blockId=ultrasonic_sensor 
+    //% block="read ultrasonic sensor in cm"
+    //% group="Sensors"
+    export function Ultrasonic(): number {
+        let data;
+        let i = 0;
+        data = readUlt(PingUnit.Centimeters);
+        if (state1 == 1 && data != 0) {
+            state1 = 0;
+        }
+        if (data != 0) {
+        } else {
+            if (state1 == 0) {
+                do {
+                    data = readUlt(PingUnit.Centimeters);
+                    i++;
+                    if (i > 3) {
+                        state1 = 1;
+                        data = 500;
+                        break;
+                    }
+                } while (data == 0)
+            }
+        }
+        if (data == 0)
+            data = 500
+        return data;
+
+    }
+    function readUlt(unit: number): number {
+        let d
+        pins.digitalWritePin(DigitalPin.P1, 1);
+        basic.pause(1)
+        pins.digitalWritePin(DigitalPin.P1, 0);
+        if (pins.digitalReadPin(DigitalPin.P2) == 0) {
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            pins.digitalWritePin(DigitalPin.P1, 1);
+            basic.pause(20)
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            d = pins.pulseIn(DigitalPin.P2, PulseValue.High, 500 * 58);//readPulseIn(1);
+        } else {
+            pins.digitalWritePin(DigitalPin.P1, 1);
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            basic.pause(20)
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            d = pins.pulseIn(DigitalPin.P2, PulseValue.Low, 500 * 58);//readPulseIn(0);
+        }
+        let x = d / 59;
+        switch (unit) {
+            case PingUnit.Centimeters: return Math.round(x);
+            default: return Math.idiv(d, 2.54);
+        }
+    }
+
+    /* **************** end copied from DFRobot Maqueen extension ****************** */
+
+    //% block
+    //% group=Sensors
+    export function readLineSensor(sensor: LineSensor): boolean {
+        if (sensor == LineSensor.Left) {
+            return pins.digitalReadPin(DigitalPin.P13) != 0;
+        } else if (sensor == LineSensor.Right) {
+            return pins.digitalReadPin(DigitalPin.P14) != 0;
+        } else {
+            return false;
+        }
+    }
+
+    //% block
+    //% group=Sensors
+    export function onLineSensor(sensor: LineSensor, line: boolean, handler: ()=>void): void {
+        let event = line ? PinEvent.Rise : PinEvent.Fall;
+        if (sensor == LineSensor.Left) {
+            pins.P13.onEvent(event, handler);
+        } else if (sensor == LineSensor.Right) {
+            pins.P14.onEvent(event, handler);
+        }
+    }
+
+
+
+
+
+
+
+
 
     //% block
     //% group=Victory
@@ -174,10 +268,18 @@ namespace battle_bot {
 
     export enum Motor {
         //% blockid="Left motor" block="left"
-        left = 0,
+        Left = 0,
         //% blockid="Right motor" block="right"
-        right = 2,
+        Right = 2,
     }
+
+    export enum LineSensor {
+        //% blockid="Left line sensor" block="left"
+        Left = 0,
+        //% blockid="Right line sensor" block="right"
+        Right = 2,
+    }
+
 
     class ButtonHandler {
         constructor() { }
@@ -244,21 +346,14 @@ namespace battle_bot {
 
     function backGroundTask(): void {
         if (blockDrive) {
-            setMotorPower(Motor.left, 0);
-            setMotorPower(Motor.right, 0);
+            setMotorPower(Motor.Left, 0);
+            setMotorPower(Motor.Right, 0);
         }
         if (blockSound)
         {
             music.setVolume(0);
         }
     }
-
-
-
-
-
-    let leftPower: number = 0;
-    let rightPower: number = 0;
 
     radio.onReceivedBuffer((buffer: Buffer) =>
         {
