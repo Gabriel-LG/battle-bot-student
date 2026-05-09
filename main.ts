@@ -1,8 +1,13 @@
+// maqueen.servoRun(maqueen.Servos.S1, 0)
+battle_bot.onButtonPress(battle_bot.Button.B, battle_bot.ButtonState.pressed, function () {
+    battle_bot.moveServo(battle_bot.AllServos.P2, 0)
+})
 battle_bot.onLineSensor(battle_bot.LineSensor.Left, battle_bot.LineSensorEvents.Lost, function () {
     battle_bot.frontLed(battle_bot.FrontLed.Left, false)
 })
+// maqueen.servoRun(maqueen.Servos.S1, 180)
 battle_bot.onButtonPress(battle_bot.Button.F, battle_bot.ButtonState.released, function () {
-    maqueen.servoRun(maqueen.Servos.S1, 180)
+    battle_bot.moveServo(battle_bot.AllServos.S1, 180)
 })
 battle_bot.onLineSensor(battle_bot.LineSensor.Right, battle_bot.LineSensorEvents.Found, function () {
     battle_bot.frontLed(battle_bot.FrontLed.Right, true)
@@ -10,19 +15,44 @@ battle_bot.onLineSensor(battle_bot.LineSensor.Right, battle_bot.LineSensorEvents
 battle_bot.onLineSensor(battle_bot.LineSensor.Left, battle_bot.LineSensorEvents.Found, function () {
     battle_bot.frontLed(battle_bot.FrontLed.Left, true)
 })
+// maqueen.servoRun(maqueen.Servos.S1, 180)
+battle_bot.onButtonPress(battle_bot.Button.D, battle_bot.ButtonState.released, function () {
+    battle_bot.moveServo(battle_bot.AllServos.P1, 180)
+})
+// maqueen.servoRun(maqueen.Servos.S1, 0)
+battle_bot.onButtonPress(battle_bot.Button.E, battle_bot.ButtonState.pressed, function () {
+    battle_bot.moveServo(battle_bot.AllServos.P0, 0)
+})
+// maqueen.servoRun(maqueen.Servos.S2, 0)
 battle_bot.onButtonPress(battle_bot.Button.C, battle_bot.ButtonState.released, function () {
-    maqueen.servoRun(maqueen.Servos.S2, 0)
+    battle_bot.moveServo(battle_bot.AllServos.S2, 0)
 })
+// maqueen.servoRun(maqueen.Servos.S1, 0)
+battle_bot.onButtonPress(battle_bot.Button.D, battle_bot.ButtonState.pressed, function () {
+    battle_bot.moveServo(battle_bot.AllServos.P1, 0)
+})
+// maqueen.servoRun(maqueen.Servos.S1, 180)
+battle_bot.onButtonPress(battle_bot.Button.B, battle_bot.ButtonState.released, function () {
+    battle_bot.moveServo(battle_bot.AllServos.P2, 180)
+})
+// maqueen.servoRun(maqueen.Servos.S2, 180)
 battle_bot.onButtonPress(battle_bot.Button.C, battle_bot.ButtonState.pressed, function () {
-    maqueen.servoRun(maqueen.Servos.S2, 180)
+    battle_bot.moveServo(battle_bot.AllServos.S2, 180)
 })
+// maqueen.servoRun(maqueen.Servos.S1, 0)
 battle_bot.onButtonPress(battle_bot.Button.F, battle_bot.ButtonState.pressed, function () {
-    maqueen.servoRun(maqueen.Servos.S1, 0)
+    battle_bot.moveServo(battle_bot.AllServos.S1, 0)
 })
 battle_bot.onLineSensor(battle_bot.LineSensor.Right, battle_bot.LineSensorEvents.Lost, function () {
     battle_bot.frontLed(battle_bot.FrontLed.Right, false)
 })
+// maqueen.servoRun(maqueen.Servos.S1, 180)
+battle_bot.onButtonPress(battle_bot.Button.E, battle_bot.ButtonState.released, function () {
+    battle_bot.moveServo(battle_bot.AllServos.P0, 180)
+})
 battle_bot.initBattleBot(0)
+let strip = battle_bot.initLeds()
+strip.showRainbow(1, 360)
 basic.forever(function () {
     battle_bot.setMotorPower(battle_bot.Motor.Left, battle_bot.speedToPower(battle_bot.calculateMotorSpeed(battle_bot.Motor.Left, battle_bot.getStick(battle_bot.StickAxis.X), battle_bot.getStick(battle_bot.StickAxis.Y))))
     battle_bot.setMotorPower(battle_bot.Motor.Right, battle_bot.speedToPower(battle_bot.calculateMotorSpeed(battle_bot.Motor.Right, battle_bot.getStick(battle_bot.StickAxis.X), battle_bot.getStick(battle_bot.StickAxis.Y))))

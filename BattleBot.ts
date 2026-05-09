@@ -4,7 +4,6 @@
 * Read more at https://makecode.microbit.org/blocks/custom
 */
 
-
 /**
  * Custom blocks
  */
@@ -25,20 +24,34 @@ namespace battle_bot {
 
         });
 
-        pins.setPull(DigitalPin.P13, PinPullMode.PullDown);
+        // install the pin edge event handlers for the line sensors.
+        pins.setPull(DigitalPin.P13, PinPullMode.PullUp);
         pins.setEvents(DigitalPin.P13, PinEventType.Edge);
-        pins.P13.onEvent(PinEvent.Rise, () => { lineSensorLeftHandler.setState(true); });
-        pins.P13.onEvent(PinEvent.Fall, () => { lineSensorLeftHandler.setState(false); });
-
-        pins.setPull(DigitalPin.P14, PinPullMode.PullDown);
+        control.onEvent(control.eventSourceId(EventBusSource.MICROBIT_ID_IO_P13), control.eventValueId(EventBusValue.MICROBIT_PIN_EVT_RISE), () => {
+            lineSensorLeftHandler.setState(true);
+        });
+        control.onEvent(control.eventSourceId(EventBusSource.MICROBIT_ID_IO_P13), control.eventValueId(EventBusValue.MICROBIT_PIN_EVT_FALL), () => {
+            lineSensorLeftHandler.setState(false);
+        });
+        pins.setPull(DigitalPin.P14, PinPullMode.PullUp);
         pins.setEvents(DigitalPin.P14, PinEventType.Edge);
-        pins.P14.onEvent(PinEvent.Rise, () => { lineSensorRightHandler.setState(true); });
-        pins.P14.onEvent(PinEvent.Fall, () => { lineSensorRightHandler.setState(false); });
+        control.onEvent(control.eventSourceId(EventBusSource.MICROBIT_ID_IO_P14), control.eventValueId(EventBusValue.MICROBIT_PIN_EVT_RISE), () => {
+            lineSensorRightHandler.setState(true);
+        });
+        control.onEvent(control.eventSourceId(EventBusSource.MICROBIT_ID_IO_P14), control.eventValueId(EventBusValue.MICROBIT_PIN_EVT_FALL), () => {
+            lineSensorRightHandler.setState(false);
+        });
 
         control.runInParallel(backGroundTask);
         started = true;
     }
-
+    
+    //% block
+    //% blockSetVariable=strip
+    export function initLeds() : neopixel.Strip
+    {
+        return neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB);
+    }
 
     //% block
     //% group="Driving"
@@ -135,6 +148,44 @@ namespace battle_bot {
         return buttonHandlers[button].getState();
     }
 
+    //% block
+    //% group=Servos
+    export function moveServo(servo: AllServos, angle: number): void
+    {
+        switch(servo)
+        {
+            case AllServos.S1:
+            case AllServos.S2:
+                moveMaqueenServo(servo, angle)
+                break;
+            case AllServos.P0:
+                pins.servoWritePin(AnalogPin.P0, angle)
+                break;
+            case AllServos.P1:
+                pins.servoWritePin(AnalogPin.P1, angle)
+                break;
+            case AllServos.P2:
+                pins.servoWritePin(AnalogPin.P2, angle)
+                break;
+        }
+    }
+
+    
+
+    function moveMaqueenServo(index: AllServos, angle: number): void {
+        let buf = pins.createBuffer(2);
+        if (index == AllServos.S1) {
+            buf[0] = 0x14;
+        }
+        if (index == AllServos.S2) {
+            buf[0] = 0x15;
+        }
+        buf[1] = angle;
+        pins.i2cWriteBuffer(0x10, buf);
+    }
+    
+
+
     /* **************** copied from DFRobot Maqueen extension ****************** */
     let state1 = 0;
     /**
@@ -147,7 +198,7 @@ namespace battle_bot {
     export function Ultrasonic(): number {
         let data;
         let i = 0;
-        data = readUlt(PingUnit.Centimeters);
+        data = readUlt();
         if (state1 == 1 && data != 0) {
             state1 = 0;
         }
@@ -155,7 +206,7 @@ namespace battle_bot {
         } else {
             if (state1 == 0) {
                 do {
-                    data = readUlt(PingUnit.Centimeters);
+                    data = readUlt();
                     i++;
                     if (i > 3) {
                         state1 = 1;
@@ -170,7 +221,7 @@ namespace battle_bot {
         return data;
 
     }
-    function readUlt(unit: number): number {
+    function readUlt(): number {
         let d
         pins.digitalWritePin(DigitalPin.P1, 1);
         basic.pause(1)
@@ -189,10 +240,7 @@ namespace battle_bot {
             d = pins.pulseIn(DigitalPin.P2, PulseValue.Low, 500 * 58);//readPulseIn(0);
         }
         let x = d / 59;
-        switch (unit) {
-            case PingUnit.Centimeters: return Math.round(x);
-            default: return Math.idiv(d, 2.54);
-        }
+        return Math.idiv(d, 2.54);
     }
 
     /* **************** end copied from DFRobot Maqueen extension ****************** */
@@ -306,6 +354,27 @@ namespace battle_bot {
         Right = 1,
     }
 
+    export enum AllServos {
+        //% blockid="Servo S1" block="S1"
+        S1 = 0,
+        //% blockid="Servo S2" block="S2"
+        S2 = 1,
+        //% blockid="Servo P0" block="P0"
+        P0 = 2,
+        //% blockid="Servo P1" block="P1"
+        P1 = 3,
+        //% blockid="Servo P2" block="P2"
+        P2 = 4,
+    }
+
+    export enum MicrobitServos {
+        //% blockid="Servo P0" block="P0"
+        P0 = 2,
+        //% blockid="Servo P1" block="P1"
+        P1 = 3,
+        //% blockid="Servo P2" block="P2"
+        P2 = 4,
+    }
 
 
     /**

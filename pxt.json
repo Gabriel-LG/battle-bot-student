@@ -5,7 +5,7 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "maqueen": "github:dfrobot/pxt-maqueen#v1.7.16"
+        "neopixel": "github:microsoft/pxt-neopixel#v0.7.6"
     },
     "files": [
         "main.blocks",
@@ -23,5 +23,5 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "blocksprj"
+    "preferredEditor": "tsprj"
 }
