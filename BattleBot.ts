@@ -10,7 +10,133 @@
  */
 //% weight=100 color=#EE7202 icon="\uf3ed"
 //% block="BattleBot"
+//% groups=["hoi", "Driving", "Controller", "Servos", "Sensors", "Lights", "Victory"]
 namespace battle_bot {
+
+    //% block
+    export function initBattleBot(id: number): void {
+        radio.setGroup(0);
+        radio.setFrequencyBand(id * 5);
+        control.runInParallel(backGroundTask);
+        started = true;
+    }
+
+    //% block
+    //% group="Driving"
+    export function setMotorPower(motor: Motor, speed: number) {
+        if (blockDrive) speed = 0;
+        //writing the same (low) power to the motor controller will make the motors jitter occasionally.
+        //buffering the last written value circomvents this issue
+        if (motor == Motor.left && speed == leftPower) return;
+        else leftPower = speed;
+        if (motor == Motor.right && speed == rightPower) return;
+        else rightPower = speed;
+
+        let buf = pins.createBuffer(3);
+        buf[0] = <uint8>motor;
+        buf[1] = speed > 0 ? 0 : 1;
+        buf[2] = <uint8>Math.clamp(0, 255, Math.abs(speed) * 255);
+        pins.i2cWriteBuffer(0x10, buf);
+    }
+
+    //% block
+    //% group="Driving"
+    export function speedToPower(speed: number): number {
+        const s = Math.clamp(0, 1, Math.abs(speed));
+
+        // Algebraically solved inverse of the saturation curve:
+        // s = ( 1.04 * Math.power(power, 1.85) ) / ( 0.04 + Math.power(power, 1.85) )
+        let power = Math.pow(0.04, 1 / 1.85) * Math.pow(s / (1.04 - s), 1 / 1.85);
+
+        // Standard safety and deadzone
+        if (power > 1) power = 1;
+        if (power < 0.1) return 0;
+
+        return speed < 0 ? -power : power;
+    }
+
+    //% block
+    //% group="Driving"
+    export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
+        let magnitude = Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
+        let angle = Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
+
+        let leftSpeed: number = 0;
+        let rightSpeed: number = 0;
+
+        //relinearize the angle
+        if (Math.abs(angle) < 0.75) {
+            angle = angle / 0.75 / 2;
+        }
+        else if (angle > 0) {
+            angle = 1 - (1 - angle) / 0.25 / 2;
+        }
+        else //if(angle < 0)
+        {
+            angle = -1 + (1 + angle) / 0.25 / 2;
+        }
+
+        if (stickY >= 0) //forward
+        {
+            leftSpeed = magnitude + magnitude * angle * 2;
+            rightSpeed = magnitude - magnitude * angle * 2;
+        }
+        else //reverse
+        {
+            leftSpeed = -magnitude + magnitude * angle * 2;
+            rightSpeed = -magnitude - magnitude * angle * 2;
+        }
+
+        if (motor == Motor.left) return leftSpeed;
+        else return rightSpeed;
+    }
+
+    //% block
+    //% group="Controller"
+    export function onButtonPress(button: Button, state: ButtonState, handler: () => void): void {
+        if (state == ButtonState.pressed) buttonHandlers[button].pressHandler = handler;
+        if (state == ButtonState.released) buttonHandlers[button].releaseHandler = handler;
+    }
+
+    //% block
+    //% group="Controller"
+    export function getStick(axis: StickAxis): number {
+        if (axis == StickAxis.X) return stickX;
+        if (axis == StickAxis.Y) return stickY;
+        if (axis == StickAxis.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
+        if (axis == StickAxis.Angle) {
+            return Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
+        }
+        return undefined;
+    }
+
+    //% block
+    //% group="Controller"
+    export function getButtonState(button: Button): boolean {
+        return buttonHandlers[button].pressed;
+    }
+
+    //% block
+    //% group=Victory
+    export function testVictory(): void {
+        if (victoryHandler != undefined) {
+            victoryHandlerActive = true;
+            control.runInParallel(() => {
+                victoryHandler();
+                victoryHandlerActive = false;
+            });
+        }
+    }
+
+
+    //% block
+    //% group=Victory
+    export function onVictory(handler: () => void): void {
+        victoryHandler = handler;
+    }
+
+
+
     export enum Button {
         //% blockId="Controller button A" block="A"
         A = 0,
@@ -116,14 +242,6 @@ namespace battle_bot {
     let victoryHandlerActive: boolean = false;
     let victoryHandler: () => void = undefined;
 
-    //% block
-    export function initBattleBot(id: number): void {
-        radio.setGroup(0);
-        radio.setFrequencyBand(id * 5);
-        control.runInParallel(backGroundTask);
-        started = true;
-    }
-
     function backGroundTask(): void {
         if (blockDrive) {
             setMotorPower(Motor.left, 0);
@@ -136,113 +254,11 @@ namespace battle_bot {
     }
 
 
-    //% block
-    export function onButtonPress(button: Button, state: ButtonState, handler: () => void): void {
-        if (state == ButtonState.pressed) buttonHandlers[button].pressHandler = handler;
-        if (state == ButtonState.released) buttonHandlers[button].releaseHandler = handler;
-    }
-
-    //% block
-    export function testVictory() : void
-    {
-        if (victoryHandler != undefined) {
-            victoryHandlerActive = true;
-            control.runInParallel(() => {
-                victoryHandler();
-                victoryHandlerActive = false;
-            });
-        }
-    }
 
 
-    //% block
-    export function onVictory(handler: () => void): void
-    {
-        victoryHandler = handler;
-    }
 
-    //% block
-    export function getStick(axis: StickAxis): number
-    {
-        if (axis == StickAxis.X) return stickX;
-        if (axis == StickAxis.Y) return stickY;
-        if (axis == StickAxis.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
-        if (axis == StickAxis.Angle) {
-            return Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
-        }
-        return undefined;
-    }
-
-    //% block
-    export function getButtonState(button: Button): boolean
-    {
-        return buttonHandlers[button].pressed;
-    }
-
-    //% block
-    export function setMotorPower(motor: Motor, speed: number)
-    {
-        if (blockDrive) speed = 0;
-        let buf = pins.createBuffer(3);
-        buf[0] = <uint8>motor;
-        buf[1] = speed > 0 ? 0 : 1;
-        buf[2] = <uint8>Math.clamp(0, 255, Math.abs(speed) * 255);
-        pins.i2cWriteBuffer(0x10, buf);
-    }
-
-    //% block
-    export function speedToPower(speed: number): number
-    {
-        const s = Math.clamp(0, 1, Math.abs(speed));
-
-        // Algebraically solved inverse of the saturation curve:
-        // s = ( 1.04 * Math.power(power, 1.85) ) / ( 0.04 + Math.power(power, 1.85) )
-        let power = Math.pow(0.04, 1 / 1.85) * Math.pow(s / (1.04 - s), 1 / 1.85);
-
-        // Standard safety and deadzone
-        if (power > 1) power = 1;
-        if (power < 0.1) return 0;
-
-        return speed < 0 ? -power : power;
-    }
-
-    //% block
-    export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number) : number
-    {
-        let magnitude = Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
-        let angle = Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
-
-        let leftSpeed: number = 0;
-        let rightSpeed: number = 0;
-
-        //relinearize the angle
-        if(Math.abs(angle)< 0.75)
-        {
-            angle = angle / 0.75 / 2;
-        } 
-        else if(angle > 0)
-        {
-            angle = 1 - (1 - angle) / 0.25 / 2;
-        }
-        else //if(angle < 0)
-        {
-            angle = -1 + (1 + angle) / 0.25 / 2;
-        }
-
-        if(stickY >= 0) //forward
-        {
-            leftSpeed = magnitude + magnitude * angle * 2;
-            rightSpeed = magnitude - magnitude * angle * 2;
-        }
-        else //reverse
-        {
-            leftSpeed = -magnitude + magnitude * angle * 2;
-            rightSpeed = -magnitude - magnitude * angle * 2;
-        }
-
-        if(motor == Motor.left) return leftSpeed;
-        else return rightSpeed;
-    }
+    let leftPower: number = 0;
+    let rightPower: number = 0;
 
     radio.onReceivedBuffer((buffer: Buffer) =>
         {
