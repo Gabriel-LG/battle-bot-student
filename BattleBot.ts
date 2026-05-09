@@ -25,8 +25,13 @@ namespace battle_bot {
 
         });
 
+        pins.setPull(DigitalPin.P13, PinPullMode.PullDown);
+        pins.setEvents(DigitalPin.P13, PinEventType.Edge);
         pins.P13.onEvent(PinEvent.Rise, () => { lineSensorLeftHandler.setState(true); });
         pins.P13.onEvent(PinEvent.Fall, () => { lineSensorLeftHandler.setState(false); });
+
+        pins.setPull(DigitalPin.P14, PinPullMode.PullDown);
+        pins.setEvents(DigitalPin.P14, PinEventType.Edge);
         pins.P14.onEvent(PinEvent.Rise, () => { lineSensorRightHandler.setState(true); });
         pins.P14.onEvent(PinEvent.Fall, () => { lineSensorRightHandler.setState(false); });
 
@@ -218,6 +223,13 @@ namespace battle_bot {
     }
 
     //% block
+    //% group=lights
+    export function frontLed(led: FrontLed, on: boolean): void {
+        if (led == FrontLed.Left) pins.P8.digitalWrite(on);
+        else if (led == FrontLed.Right) pins.P12.digitalWrite(on);
+    }
+
+    //% block
     //% group=Victory
     export function testVictory(): void {
         victoryHandler.setState(false);
@@ -230,8 +242,6 @@ namespace battle_bot {
     export function onVictory(handler: () => void): void {
         victoryHandler.setHandler = handler;
     }
-
-
 
     export enum Button {
         //% blockId="Controller button A" block="A"
@@ -289,6 +299,12 @@ namespace battle_bot {
         Found = 1,
     }
 
+    export enum FrontLed {
+        //% blockid="Front LED left" block="left"
+        Left = 0,
+        //% blockid="Front LED right" block="right"
+        Right = 1,
+    }
 
 
 
@@ -360,13 +376,13 @@ namespace battle_bot {
     let stickX: number = 0;
     let stickY: number = 0;
 
-    let lineSensorLeftHandler: BooleanStateHandler;
-    let lineSensorRightHandler: BooleanStateHandler;
+    let lineSensorLeftHandler: BooleanStateHandler = new BooleanStateHandler;
+    let lineSensorRightHandler: BooleanStateHandler = new BooleanStateHandler;
 
     let restoreVolume: number = 0;
     let blockSound: boolean = false;
     let blockDrive: boolean = false;
-    let victoryHandler: BooleanStateHandler;
+    let victoryHandler: BooleanStateHandler = new BooleanStateHandler;
 
     function backGroundTask(): void {
         while(true)
