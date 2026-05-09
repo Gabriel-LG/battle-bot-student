@@ -2,6 +2,11 @@
 battle_bot.onButtonPress(battle_bot.Button.B, battle_bot.ButtonState.pressed, function () {
     battle_bot.moveServo(battle_bot.AllServos.P2, 0)
 })
+battle_bot.onButtonPress(battle_bot.Button.A, battle_bot.ButtonState.pressed, function () {
+    battle_bot.disableServo(battle_bot.MicrobitServos.P0)
+    battle_bot.disableServo(battle_bot.MicrobitServos.P1)
+    battle_bot.disableServo(battle_bot.MicrobitServos.P2)
+})
 battle_bot.onLineSensor(battle_bot.LineSensor.Left, battle_bot.LineSensorEvents.Lost, function () {
     battle_bot.frontLed(battle_bot.FrontLed.Left, false)
 })

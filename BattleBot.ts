@@ -152,6 +152,9 @@ namespace battle_bot {
     //% group=Servos
     export function moveServo(servo: AllServos, angle: number): void
     {
+        if(angle > 180) angle = 180;
+        if(angle < 0) angle = 0;
+
         switch(servo)
         {
             case AllServos.S1:
@@ -166,6 +169,35 @@ namespace battle_bot {
                 break;
             case AllServos.P2:
                 pins.servoWritePin(AnalogPin.P2, angle)
+                break;
+            default:
+                return;
+        }
+
+        servoPositions[servo] = angle;
+    }
+
+    //% block
+    //% group=Servos
+    export function servoPosition(servo: AllServos): number
+    {
+        return servoPositions[servo];
+    }
+
+    //% block
+    //% group=Servos
+    export function disableServo(servo: MicrobitServos)
+    {
+        switch(servo)
+        {
+            case MicrobitServos.P0:
+                pins.digitalWritePin(DigitalPin.P0, 0);
+                break;
+            case MicrobitServos.P1:
+                pins.digitalWritePin(DigitalPin.P1, 0);
+                break;
+            case MicrobitServos.P2:
+                pins.digitalWritePin(DigitalPin.P2, 0);
                 break;
         }
     }
@@ -432,7 +464,8 @@ namespace battle_bot {
 
     let started: boolean = false;
 
-    let buttonHandlers: { [key: number]: BooleanStateHandler } = {
+    let buttonHandlers: { [key: number]: BooleanStateHandler } =
+    {
         [0]: new BooleanStateHandler,
         [1]: new BooleanStateHandler,
         [2]: new BooleanStateHandler,
@@ -452,6 +485,15 @@ namespace battle_bot {
     let blockSound: boolean = false;
     let blockDrive: boolean = false;
     let victoryHandler: BooleanStateHandler = new BooleanStateHandler;
+
+    let servoPositions: { [key: number]: number} = 
+    {
+        [AllServos.S1]: 90,
+        [AllServos.S2]: 90,
+        [AllServos.P0]: 90,
+        [AllServos.P1]: 90,
+        [AllServos.P2]: 90,
+    }
 
     function backGroundTask(): void {
         while(true)
