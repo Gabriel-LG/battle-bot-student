@@ -17,6 +17,19 @@ namespace battle_bot {
     export function initBattleBot(id: number): void {
         radio.setGroup(0);
         radio.setFrequencyBand(id * 5);
+
+        radio.onReceivedBuffer((buffer: Buffer) => {
+            let id = buffer.getUint8(0);
+            if (id == 0x43 /*'C'*/) handleControllerUpdate(buffer);
+            if (id == 0x54 /*'T'*/) handleTeacherUpdate(buffer);
+
+        });
+
+        pins.P13.onEvent(PinEvent.Rise, () => { lineSensorLeftHandler.setState(true); });
+        pins.P13.onEvent(PinEvent.Fall, () => { lineSensorLeftHandler.setState(false); });
+        pins.P14.onEvent(PinEvent.Rise, () => { lineSensorRightHandler.setState(true); });
+        pins.P14.onEvent(PinEvent.Fall, () => { lineSensorRightHandler.setState(false); });
+
         control.runInParallel(backGroundTask);
         started = true;
     }
@@ -95,8 +108,8 @@ namespace battle_bot {
     //% block
     //% group="Controller"
     export function onButtonPress(button: Button, state: ButtonState, handler: () => void): void {
-        if (state == ButtonState.pressed) buttonHandlers[button].pressHandler = handler;
-        if (state == ButtonState.released) buttonHandlers[button].releaseHandler = handler;
+        if (state == ButtonState.pressed) buttonHandlers[button].setHandler = handler;
+        if (state == ButtonState.released) buttonHandlers[button].clearHandler = handler;
     }
 
     //% block
@@ -114,7 +127,7 @@ namespace battle_bot {
     //% block
     //% group="Controller"
     export function getButtonState(button: Button): boolean {
-        return buttonHandlers[button].pressed;
+        return buttonHandlers[button].getState();
     }
 
     /* **************** copied from DFRobot Maqueen extension ****************** */
@@ -193,40 +206,29 @@ namespace battle_bot {
 
     //% block
     //% group=Sensors
-    export function onLineSensor(sensor: LineSensor, line: boolean, handler: ()=>void): void {
-        let event = line ? PinEvent.Rise : PinEvent.Fall;
+    export function onLineSensor(sensor: LineSensor, event: LineSensorEvents, handler: ()=>void): void {
+        //let event = line ? PinEvent.Rise : PinEvent.Fall;
         if (sensor == LineSensor.Left) {
-            pins.P13.onEvent(event, handler);
+            if(event == LineSensorEvents.Found) lineSensorLeftHandler.setHandler = handler;
+            else if (event == LineSensorEvents.Lost) lineSensorLeftHandler.clearHandler = handler;
         } else if (sensor == LineSensor.Right) {
-            pins.P14.onEvent(event, handler);
+            if (event == LineSensorEvents.Found) lineSensorRightHandler.setHandler = handler;
+            else if (event == LineSensorEvents.Lost) lineSensorRightHandler.clearHandler = handler;
         }
     }
-
-
-
-
-
-
-
-
 
     //% block
     //% group=Victory
     export function testVictory(): void {
-        if (victoryHandler != undefined) {
-            victoryHandlerActive = true;
-            control.runInParallel(() => {
-                victoryHandler();
-                victoryHandlerActive = false;
-            });
-        }
+        victoryHandler.setState(false);
+        victoryHandler.setState(true);
     }
 
 
     //% block
     //% group=Victory
     export function onVictory(handler: () => void): void {
-        victoryHandler = handler;
+        victoryHandler.setHandler = handler;
     }
 
 
@@ -280,42 +282,62 @@ namespace battle_bot {
         Right = 2,
     }
 
+    export enum LineSensorEvents {
+        //% blockid="Line lost" block="lost"
+        Lost = 0,
+        //% blockid="Line found" block="found"
+        Found = 1,
+    }
 
-    class ButtonHandler {
+
+
+
+    /**
+     * The boolean state handler will call the set handler when the state transitions to true,
+     * it will call the clear handler when the state transisitions to false.
+     * The handlers run in a parallel fiber, two handlers are never active at the same time.
+     * So before the clear handler is called, the set handler must be finished and vise versa.
+     */
+    class BooleanStateHandler {
         constructor() { }
 
-        pressed: boolean = false;
-        pressHandler: () => void = undefined;
-        releaseHandler: () => void = undefined;
+        private state: boolean = false;
+        setHandler: () => void = undefined;
+        clearHandler: () => void = undefined;
 
         private handlerRunning: boolean = false;
 
-        handle(pressed: boolean): void {
+        getState(): boolean
+        {
+            return this.state;
+        }
+
+        setState(newState: boolean): void {
             //no change, nothing to do
-            if (pressed == this.pressed) return;
-            this.pressed = pressed;
+            if (newState == this.state) return;
+            this.state = newState;
             if (this.handlerRunning) return; //already running a handler
 
-            // button pressed
-            if (pressed && this.pressHandler != undefined) {
+            // set state
+            if (newState && this.setHandler != undefined) {
                 this.handlerRunning = true;
                 control.runInParallel(() => {
-                    //run the press handler
-                    this.pressHandler();
-                    //if the button is released by now, run the released handler
-                    if (!this.pressed && this.releaseHandler != undefined) this.releaseHandler();
+                    //run the set handler
+                    this.setHandler();
+                    //if the state is cleared by now, run the clear handler
+                    if (!this.state && this.clearHandler != undefined) this.clearHandler();
                     this.handlerRunning = false;
                 });
             }
 
-            //button released
-            if (!pressed && this.releaseHandler != undefined) {
+            // clear state
+            if (!newState && this.clearHandler != undefined) {
                 this.handlerRunning = true;
                 control.runInParallel(() => {
-                    //run the release handler
-                    this.releaseHandler();
-                    //if the button is pressed again by now, run the released handler
-                    if (!this.pressed && this.releaseHandler != undefined) this.releaseHandler();
+                    //run clear handler
+                    this.clearHandler();
+                    //if the state is set by now, run the set handler
+                    if (this.state && this.setHandler != undefined) this.setHandler();
                     this.handlerRunning = false;
                 });
             }
@@ -325,43 +347,41 @@ namespace battle_bot {
 
     let started: boolean = false;
 
-    let buttonHandlers: { [key: number]: ButtonHandler } = {
-        [0]: new ButtonHandler,
-        [1]: new ButtonHandler,
-        [2]: new ButtonHandler,
-        [3]: new ButtonHandler,
-        [4]: new ButtonHandler,
-        [5]: new ButtonHandler,
-        [6]: new ButtonHandler,
-        [7]: new ButtonHandler,
+    let buttonHandlers: { [key: number]: BooleanStateHandler } = {
+        [0]: new BooleanStateHandler,
+        [1]: new BooleanStateHandler,
+        [2]: new BooleanStateHandler,
+        [3]: new BooleanStateHandler,
+        [4]: new BooleanStateHandler,
+        [5]: new BooleanStateHandler,
+        [6]: new BooleanStateHandler,
+        [7]: new BooleanStateHandler,
     };
     let stickX: number = 0;
     let stickY: number = 0;
 
+    let lineSensorLeftHandler: BooleanStateHandler;
+    let lineSensorRightHandler: BooleanStateHandler;
+
     let restoreVolume: number = 0;
     let blockSound: boolean = false;
     let blockDrive: boolean = false;
-    let victoryHandlerActive: boolean = false;
-    let victoryHandler: () => void = undefined;
+    let victoryHandler: BooleanStateHandler;
 
     function backGroundTask(): void {
-        if (blockDrive) {
-            setMotorPower(Motor.Left, 0);
-            setMotorPower(Motor.Right, 0);
-        }
-        if (blockSound)
+        while(true)
         {
-            music.setVolume(0);
+            if (blockDrive) {
+                setMotorPower(Motor.Left, 0);
+                setMotorPower(Motor.Right, 0);
+            }
+            if (blockSound)
+            {
+                music.setVolume(0);
+            }
+            pause(100);
         }
     }
-
-    radio.onReceivedBuffer((buffer: Buffer) =>
-        {
-            let id = buffer.getUint8(0);
-            if (id == 0x43 /*'C'*/) handleControllerUpdate(buffer);
-            if (id == 0x54 /*'T'*/) handleTeacherUpdate(buffer);
-
-        });
 
     function handleControllerUpdate(buffer: Buffer): void {
         if (buffer.length != 4) return;
@@ -374,7 +394,7 @@ namespace battle_bot {
         let buttonFlags: number = buffer.getUint8(3);
         for (let button = 0; button < 8; button++) {
             let newState: boolean = (buttonFlags & (1 << button)) != 0;
-            buttonHandlers[button].handle(newState);
+            buttonHandlers[button].setState(newState);
         }
     }
 
@@ -393,9 +413,7 @@ namespace battle_bot {
             music.setVolume(restoreVolume);
         }
 
-        if (victoryFlag && !victoryHandlerActive) {
-            testVictory();
-        }
+        victoryHandler.setState(victoryFlag);
 
         blockSound = soundFlag;
         blockDrive = driveFlag;

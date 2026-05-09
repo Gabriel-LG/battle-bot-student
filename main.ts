@@ -13,5 +13,5 @@ battle_bot.onButtonPress(battle_bot.Button.F, battle_bot.ButtonState.pressed, fu
 battle_bot.initBattleBot(0)
 basic.forever(function () {
     battle_bot.setMotorPower(battle_bot.Motor.Left, battle_bot.speedToPower(battle_bot.calculateMotorSpeed(battle_bot.Motor.Left, battle_bot.getStick(battle_bot.StickAxis.X), battle_bot.getStick(battle_bot.StickAxis.Y))))
-    battle_bot.setMotorPower(battle_bot.Motor.Left, battle_bot.speedToPower(battle_bot.calculateMotorSpeed(battle_bot.Motor.Left, battle_bot.getStick(battle_bot.StickAxis.X), battle_bot.getStick(battle_bot.StickAxis.Y))))
+    battle_bot.setMotorPower(battle_bot.Motor.Right, battle_bot.speedToPower(battle_bot.calculateMotorSpeed(battle_bot.Motor.Right, battle_bot.getStick(battle_bot.StickAxis.X), battle_bot.getStick(battle_bot.StickAxis.Y))))
 })
