@@ -1,15 +1,7 @@
 
 /**
- * Use this file to define custom functions and blocks.
- * Read more at https://makecode.microbit.org/blocks/custom
- */
-
-/**
- * BattleBot Extension
- * 
- * Provides a comprehensive API for controlling battle robots built on the micro:bit platform.
- * Features include motor control, servo control, sensor input, wireless controller support,
- * and teacher override capabilities.
+ * BattleBot Extension for micro:bit
+ * Provides blocks for controlling battle robots with motors, servos, sensors, and wireless controllers.
  */
 //% weight=100 color=#EE7202 icon="\uf3ed"
 //% block="BattleBot"
@@ -17,15 +9,8 @@
 namespace battle_bot {
 
     /**
-     * Initialize the BattleBot system with a unique frequency band.
-     * Must be called once at the start of your program before using any other BattleBot functions.
-     * 
-     * Sets up:
-     * - Radio communication for controller and teacher messages
-     * - Line sensor edge detection on P13 and P14
-     * - Background task for enforcing teacher overrides
-     * 
-     * @param id Unique identifier (0-50) that determines the radio frequency band (id * 5)
+     * Start your BattleBot. Call this first before using any other blocks.
+     * @param id Your robot's number (each robot needs a different number)
      */
     //% block
     export function initBattleBot(id: number): void {
@@ -62,11 +47,9 @@ namespace battle_bot {
     }
 
     /**
-     * Set the power level for a motor.
-     * Power is automatically set to 0 when the teacher blocks driving.
-     * 
-     * @param motor Which motor to control (Left or Right)
-     * @param speed Power level from -1.0 (full reverse) to 1.0 (full forward), 0 = stop
+     * Set how fast a motor spins.
+     * @param motor Which motor (left or right)
+     * @param speed -1 (full reverse) to 1 (full forward), 0 = stop
      */
     //% block
     //% group="Driving"
@@ -87,13 +70,9 @@ namespace battle_bot {
     }
 
     /**
-     * Convert desired speed to motor power using an inverse saturation curve.
-     * This compensates for non-linear motor response at low power levels.
-     * 
-     * Includes a deadzone: speeds below 0.1 return 0.
-     * 
-     * @param speed Desired speed from -1.0 to 1.0
-     * @returns Motor power from -1.0 to 1.0, clamped and with deadzone applied
+     * Convert a speed value to the right motor power so your robot moves smoothly.
+     * @param speed Speed from -1 to 1
+     * @returns Power value to use with setMotorPower
      */
     //% block
     //% group="Driving"
@@ -112,16 +91,11 @@ namespace battle_bot {
     }
 
     /**
-     * Calculate differential drive motor speed from joystick input.
-     * Implements arcade-style driving where forward/back is Y and turning is X.
-     * 
-     * Algorithm relinearizes the angle to provide smoother control in forward/reverse
-     * and sharper turning response at extreme angles.
-     * 
-     * @param motor Which motor to calculate speed for (Left or Right)
-     * @param stickX Joystick X axis (-1.0 = left, 1.0 = right)
-     * @param stickY Joystick Y axis (-1.0 = reverse, 1.0 = forward)
-     * @returns Speed value from -1.0 to 1.0
+     * Figure out how fast a motor should spin based on the joystick position.
+     * @param motor Which motor (left or right)
+     * @param stickX Joystick left/right position
+     * @param stickY Joystick forward/back position
+     * @returns Speed value from -1 to 1
      */
     //% block
     //% group="Driving"
@@ -160,12 +134,10 @@ namespace battle_bot {
     }
 
     /**
-     * Register a handler to run when a controller button is pressed or released.
-     * The handler runs in a parallel fiber and will not block other code.
-     * 
-     * @param button Which button to listen for (A, B, C, D, E, F, or Logo)
-     * @param state When to trigger (pressed or released)
-     * @param handler Function to run when the button event occurs
+     * Do something when a controller button is pressed or released.
+     * @param button Which button (A, B, C, D, E, F, or Logo)
+     * @param state When to run (pressed or released)
+     * @param handler Your code to run
      */
     //% block
     //% group="Controller"
@@ -175,14 +147,9 @@ namespace battle_bot {
     }
 
     /**
-     * Get the current joystick position or calculated values.
-     * 
-     * @param axis Which axis or calculation to retrieve (X, Y, Magnitude, or Angle)
-     * @returns 
-     *   - X: -1.0 (left) to 1.0 (right)
-     *   - Y: -1.0 (down/reverse) to 1.0 (up/forward)
-     *   - Magnitude: 0 to 1.0 (distance from center)
-     *   - Angle: -1.0 to 1.0 (angle in units of π/2 radians)
+     * Get the joystick position.
+     * @param axis Which value you want (X, Y, Magnitude, or Angle)
+     * @returns A number from -1 to 1
      */
     //% block
     //% group="Controller"
@@ -197,10 +164,9 @@ namespace battle_bot {
     }
 
     /**
-     * Check if a controller button is currently pressed.
-     * 
-     * @param button Which button to check (A, B, C, D, E, F, or Logo)
-     * @returns true if the button is currently pressed, false otherwise
+     * Check if a controller button is being pressed right now.
+     * @param button Which button to check
+     * @returns true if pressed, false if not pressed
      */
     //% block
     //% group="Controller"
@@ -209,11 +175,9 @@ namespace battle_bot {
     }
 
     /**
-     * Move a servo to a specific angle.
-     * Supports both Maqueen servos (S1, S2 via I2C) and micro:bit pin servos (P0, P1, P2).
-     * 
-     * @param servo Which servo to control (S1, S2, P0, P1, or P2)
-     * @param angle Target angle in degrees (0-180), automatically clamped to valid range
+     * Move a servo to an angle.
+     * @param servo Which servo (S1, S2, P0, P1, or P2)
+     * @param angle Position in degrees (0 to 180)
      */
     //% block
     //% group=Servos
@@ -245,11 +209,9 @@ namespace battle_bot {
     }
 
     /**
-     * Get the last commanded position of a servo.
-     * Note: This returns the target position, not actual position from the servo.
-     * 
-     * @param servo Which servo to query (S1, S2, P0, P1, or P2)
-     * @returns Last angle commanded in degrees (0-180)
+     * Get the current angle of a servo.
+     * @param servo Which servo (S1, S2, P0, P1, or P2)
+     * @returns Angle in degrees (0 to 180)
      */
     //% block
     //% group=Servos
@@ -259,11 +221,8 @@ namespace battle_bot {
     }
 
     /**
-     * Disable PWM signal on a micro:bit pin servo.
-     * Useful to prevent servo jitter or allow manual positioning.
-     * Only works on P0, P1, P2 (not Maqueen servos S1, S2).
-     * 
-     * @param servo Which micro:bit pin servo to disable (P0, P1, or P2)
+     * Turn off a servo so you can move it by hand.
+     * @param servo Which servo (P0, P1, or P2 only)
      */
     //% block
     //% group=Servos
@@ -283,12 +242,10 @@ namespace battle_bot {
         }
     }
 
-    
     /**
-     * Internal function to control Maqueen servos via I2C.
-     * Sends angle command to the Maqueen motor driver board at address 0x10.
+     * Internal helper: Send servo angle command to Maqueen motor driver via I2C.
      * 
-     * @param index Servo to control (S1 or S2)
+     * @param index Servo identifier (S1 or S2)
      * @param angle Target angle in degrees (0-180)
      */
     function moveMaqueenServo(index: AllServos, angle: number): void {
@@ -307,10 +264,11 @@ namespace battle_bot {
 
     /* **************** copied from DFRobot Maqueen extension ****************** */
     let state1 = 0;
+    
     /**
-     * Read ultrasonic sensor.
+     * Measure distance using the ultrasonic sensor.
+     * @returns Distance in centimeters (or 500 if nothing detected)
      */
-
     // % blockId=ultrasonic_sensor 
     //% block="read ultrasonic sensor in cm"
     //% group="Sensors"
@@ -340,6 +298,15 @@ namespace battle_bot {
         return data;
 
     }
+    
+    /**
+     * Internal helper: Perform ultrasonic distance measurement.
+     * 
+     * Sends trigger pulse on P1, reads echo pulse on P2.
+     * Handles both high and low initial states of echo pin.
+     * 
+     * @returns Raw distance reading in custom units, or 0 on timeout
+     */
     function readUlt(): number {
         let d
         pins.digitalWritePin(DigitalPin.P1, 1);
@@ -365,10 +332,9 @@ namespace battle_bot {
     /* **************** end copied from DFRobot Maqueen extension ****************** */
 
     /**
-     * Read the current state of a line sensor.
-     * 
-     * @param sensor Which line sensor to read (Left or Right)
-     * @returns true if line/dark surface detected, false if no line/light surface
+     * Check if a line sensor sees a dark line.
+     * @param sensor Which sensor (left or right)
+     * @returns true if dark line detected, false if light surface
      */
     //% block
     //% group=Sensors
@@ -383,12 +349,10 @@ namespace battle_bot {
     }
 
     /**
-     * Register a handler to run when a line sensor detects or loses a line.
-     * The handler runs in a parallel fiber and will not block other code.
-     * 
-     * @param sensor Which line sensor to monitor (Left or Right)
-     * @param event When to trigger (Found = line detected, Lost = line lost)
-     * @param handler Function to run when the line sensor event occurs
+     * Do something when a line sensor finds or loses a line.
+     * @param sensor Which sensor (left or right)
+     * @param event When to run (found or lost)
+     * @param handler Your code to run
      */
     //% block
     //% group=Sensors
@@ -404,10 +368,9 @@ namespace battle_bot {
     }
 
     /**
-     * Control the front white LEDs.
-     * 
-     * @param led Which LED to control (Left or Right)
-     * @param on true to turn on, false to turn off
+     * Turn a front LED on or off.
+     * @param led Which LED (left or right)
+     * @param on true = on, false = off
      */
     //% block
     //% group=Lights
@@ -417,10 +380,8 @@ namespace battle_bot {
     }
 
     /**
-     * Initialize the RGB LED strip (4 NeoPixels on P15).
-     * Call once at startup, then use the returned strip object to control colors.
-     * 
-     * @returns NeoPixel strip object for controlling the 4 RGB LEDs
+     * Set up the colorful LED strip (4 LEDs).
+     * @returns A strip variable you can use to change colors
      */
     //% block
     //% group=Lights
@@ -430,9 +391,7 @@ namespace battle_bot {
     }
 
     /**
-     * Trigger the victory handler for testing purposes.
-     * Simulates a victory signal from the teacher without needing actual radio message.
-     * Useful for testing your victory celebration routine.
+     * Test your victory celebration without needing to actually win.
      */
     //% block
     //% group=Victory
@@ -443,11 +402,8 @@ namespace battle_bot {
 
 
     /**
-     * Register a handler to run when the teacher signals victory.
-     * Use this to program a celebration routine (lights, sounds, dance moves).
-     * The handler runs in a parallel fiber and will not block other code.
-     * 
-     * @param handler Function to run when victory is signaled
+     * Do something when your robot wins! Make it dance, flash lights, or play sounds.
+     * @param handler Your victory celebration code
      */
     //% block
     //% group=Victory
@@ -542,74 +498,42 @@ namespace battle_bot {
 
 
     /**
-     * BooleanStateHandler - Manages boolean state transitions with event handlers
+     * BooleanStateHandler - Thread-safe state machine for boolean events
      * 
-     * This class provides thread-safe event handling for boolean state changes.
-     * It's used throughout the BattleBot extension for buttons, line sensors, and victory events.
+     * Manages state transitions and executes callbacks in parallel fibers.
+     * Used throughout BattleBot for buttons, line sensors, and victory events.
      * 
-     * **Behavior:**
-     * - When state transitions false → true: calls `setHandler`
-     * - When state transitions true → false: calls `clearHandler`
-     * - No handler is called if state doesn't actually change
+     * Behavior:
+     * - State false → true: calls setHandler
+     * - State true → false: calls clearHandler
+     * - No-op if state doesn't change
      * 
-     * **Concurrency Safety:**
+     * Concurrency guarantees:
      * - Handlers execute in parallel fibers (non-blocking)
-     * - Only one handler runs at a time per instance
-     * - If state changes while a handler is running, the change is ignored until handler completes
-     * - After handler completes, if state has changed, the opposite handler runs automatically
+     * - Only one handler active per instance at a time
+     * - State changes during handler execution are deferred
+     * - After handler completes, if state changed, opposite handler runs
      * 
-     * **Example Usage:**
-     * ```typescript
-     * let buttonA = new BooleanStateHandler();
-     * buttonA.setHandler = () => { basic.showIcon(IconNames.Happy); };
-     * buttonA.clearHandler = () => { basic.clearScreen(); };
-     * 
-     * // When button is pressed:
-     * buttonA.setState(true);  // Shows happy face in parallel fiber
-     * 
-     * // When button is released:
-     * buttonA.setState(false); // Clears screen in parallel fiber
-     * ```
-     * 
-     * **Use Cases in BattleBot:**
-     * - Button press/release events (A, B, C, D, E, F, Logo)
-     * - Line sensor found/lost events (left, right)
-     * - Victory celebration trigger
+     * This prevents race conditions and ensures handlers complete before
+     * their counterpart runs.
      */
     class BooleanStateHandler {
         constructor() { }
 
-        /** Current state (true or false) */
         private state: boolean = false;
-        
-        /** Handler to call when state transitions to true (e.g., button pressed, line found) */
         setHandler: () => void = undefined;
-        
-        /** Handler to call when state transitions to false (e.g., button released, line lost) */
         clearHandler: () => void = undefined;
-
-        /** Flag indicating a handler is currently executing */
         private handlerRunning: boolean = false;
 
-        /**
-         * Get the current state value.
-         * @returns Current boolean state
-         */
         getState(): boolean
         {
             return this.state;
         }
 
         /**
-         * Update the state and trigger appropriate handlers.
+         * Update state and trigger appropriate handler.
          * 
-         * **Logic:**
-         * 1. If newState equals current state, do nothing (no redundant handler calls)
-         * 2. If a handler is already running, ignore this state change (prevents race conditions)
-         * 3. Otherwise, run the appropriate handler (set or clear) in a parallel fiber
-         * 4. After handler finishes, check if state changed again and run opposite handler if needed
-         * 
-         * @param newState New state value to set
+         * @param newState New state value
          */
         setState(newState: boolean): void {
             //no change, nothing to do
@@ -679,9 +603,13 @@ namespace battle_bot {
 
     /**
      * Background task that enforces teacher overrides.
-     * Runs continuously every 100ms to:
-     * - Force motor power to 0 when blockDrive is enabled
-     * - Force volume to 0 when blockSound is enabled
+     * 
+     * Runs continuously in a parallel fiber (100ms intervals).
+     * When teacher blocks are active:
+     * - blockDrive: forces both motors to 0 power
+     * - blockSound: sets volume to 0
+     * 
+     * This ensures students cannot bypass teacher controls.
      */
     function backGroundTask(): void {
         while(true)
@@ -700,9 +628,16 @@ namespace battle_bot {
 
     /**
      * Process incoming controller radio messages.
-     * Expected format: [0x43, stickX, stickY, buttonFlags]
      * 
-     * @param buffer 4-byte radio buffer containing joystick and button state
+     * Expected buffer format: [0x43, stickX, stickY, buttonFlags]
+     * - Byte 0: Message ID (0x43 = 'C' for Controller)
+     * - Byte 1: Joystick X as signed int8 (-127 to 127)
+     * - Byte 2: Joystick Y as signed int8 (-127 to 127)
+     * - Byte 3: Button state flags (bit 0 = A, bit 1 = B, ..., bit 6 = Logo)
+     * 
+     * Updates global stickX, stickY, and triggers button state handlers.
+     * 
+     * @param buffer 4-byte radio buffer from controller
      */
     function handleControllerUpdate(buffer: Buffer): void {
         if (buffer.length != 4) return;
@@ -721,14 +656,18 @@ namespace battle_bot {
 
     /**
      * Process incoming teacher radio messages.
-     * Expected format: [0x54, flags]
      * 
-     * Flags:
-     * - bit 0: block sound (mute the robot)
-     * - bit 1: block drive (disable motors)
-     * - bit 7: victory (trigger celebration)
+     * Expected buffer format: [0x54, flags]
+     * - Byte 0: Message ID (0x54 = 'T' for Teacher)
+     * - Byte 1: Control flags
+     *   - Bit 0: blockSound (mute robot)
+     *   - Bit 1: blockDrive (disable motors)
+     *   - Bit 7: victory (trigger celebration)
      * 
-     * @param buffer 2-byte radio buffer containing control flags
+     * Updates global block flags and triggers victory handler.
+     * Preserves volume setting when sound is unblocked.
+     * 
+     * @param buffer 2-byte radio buffer from teacher
      */
     function handleTeacherUpdate(buffer: Buffer): void {
         if (buffer.length != 2) return;
