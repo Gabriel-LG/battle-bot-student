@@ -47,20 +47,33 @@ namespace battle_bot {
     }
 
     /**
-     * Set how fast a motor spins.
+     * Set how fast a motor spins. The speed is automatically converted for smooth movement.
      */
-    //% block="set %motor motor power to %speed \\%"
+    //% block="set %motor motor speed to %speed \\%"
     //% group="Driving"
     //% speed.min=-100 speed.max=100 speed.defl=0
-    export function setMotorPower(motor: Motor, speed: number) {
+    export function setMotorSpeed(motor: Motor, speed: number) {
+        // Apply speed-to-power conversion for smooth movement
+        const power = speedToPower(speed);
+        setMotorRawPower(motor, power);
+    }
+
+    /**
+     * Set motor power directly without conversion. For advanced users.
+     */
+    //% block="set %motor motor raw power to %power \\%"
+    //% group="Driving"
+    //% power.min=-100 power.max=100 power.defl=0
+    //% advanced=true
+    export function setMotorRawPower(motor: Motor, power: number) {
         if (motor != Motor.Left && motor != Motor.Right) return; //sanity check
         
-        if (blockDrive) speed = 0;
+        if (blockDrive) power = 0;
 
         let buf = pins.createBuffer(3);
         buf[0] = <uint8>motor;
-        buf[1] = speed > 0 ? 0 : 1;
-        buf[2] = <uint8>Math.clamp(0, 255, Math.abs(speed) * 255 / 100);
+        buf[1] = power > 0 ? 0 : 1;
+        buf[2] = <uint8>Math.clamp(0, 255, Math.abs(power) * 255 / 100);
         
         for (let retries = 0; retries < 3; retries++)
         {
@@ -69,11 +82,12 @@ namespace battle_bot {
     }
 
     /**
-     * Convert a speed value to the right motor power so your robot moves smoothly.
+     * Convert a speed value to motor power for smooth movement. For advanced users.
      */
     //% block="convert speed %speed \\% to power"
     //% group="Driving"
     //% speed.min=-100 speed.max=100
+    //% advanced=true
     export function speedToPower(speed: number): number {
         const s = Math.clamp(0, 1, Math.abs(speed) / 100);
 
@@ -596,8 +610,8 @@ namespace battle_bot {
         while(true)
         {
             if (blockDrive) {
-                setMotorPower(Motor.Left, 0);
-                setMotorPower(Motor.Right, 0);
+                setMotorRawPower(Motor.Left, 0);
+                setMotorRawPower(Motor.Right, 0);
             }
             if (blockSound)
             {
