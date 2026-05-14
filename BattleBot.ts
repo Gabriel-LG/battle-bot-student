@@ -166,8 +166,18 @@ namespace battle_bot {
     export function getStick(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX * 100;
         if (axis == StickAxis.Y) return stickY * 100;
-        if (axis == StickAxis.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY)) * 100;
-        if (axis == StickAxis.Angle) {
+        return undefined;
+    }
+
+    /**
+     * Get advanced joystick values (magnitude or angle). For advanced users.
+     */
+    //% block="joystick %axis"
+    //% group="Controller"
+    //% advanced=true
+    export function getStickAdvanced(axis: StickAxisAdvanced): number {
+        if (axis == StickAxisAdvanced.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY)) * 100;
+        if (axis == StickAxisAdvanced.Angle) {
             return Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2) * 100;
         }
         return undefined;
@@ -435,6 +445,9 @@ namespace battle_bot {
         X,
         //% blockId="Stick Y Axis" block="Y"
         Y,
+    }
+
+    export enum StickAxisAdvanced {
         //% blockId="Stick Magnitude" block="Magnitude"
         Magnitude,
         //% blockId="Stick angle" block="Angle"
