@@ -6,7 +6,7 @@
 //% weight=100 color=#EE7202 icon="\uf3ed"
 //% block="BattleBot"
 //% groups=["Driving", "Controller", "Servos", "Sensors", "Lights", "Victory"]
-namespace battle_bot {
+namespace battlebot {
 
     // ============================================
     // TYPE DECLARATIONS (ENUMS)
