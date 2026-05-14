@@ -9,9 +9,9 @@
 namespace battle_bot {
 
     /**
-     * Start your BattleBot. Call this first before using any other blocks.
+     * Enter your controller number here.
      */
-    //% block="initialize BattleBot with id %id"
+    //% block="connect to controller %id"
     //% id.min=0 id.max=15
     export function initBattleBot(id: number): void {
         radio.setGroup(0);
