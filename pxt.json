@@ -12,10 +12,11 @@
         "main.blocks",
         "main.ts",
         "README.md",
-        "BattleBot.ts",
+        "battlebot.ts",
         "_locales/nl/battlebot-strings.json",
         "_locales/nl/battlebot-jsdoc-strings.json",
-        "_locales/de/battlebot-strings.json"
+        "_locales/de/battlebot-strings.json",
+        "_locales/de/battlebot-jsdoc-strings.json"
     ],
     "testFiles": [
         "test.ts"
