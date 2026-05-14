@@ -105,13 +105,13 @@ namespace battle_bot {
     /**
      * Figure out how fast a motor should spin based on the joystick position.
      */
-    //% block="calculate %motor motor speed from stick X %stickX Y %stickY"
+    //% block="convert %stickX %stickY to %motor motor speed"
     //% group="Driving"
     //% stickX.min=-100 stickX.max=100
     //% stickY.min=-100 stickY.max=100
     //% stickX.shadow="battle_bot_getStickX"
     //% stickY.shadow="battle_bot_getStickY"
-    export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
+    export function calculateMotorSpeed(stickX: number, stickY: number, motor: Motor): number {
         // Convert percentages to scalars for math
         let x = stickX / 100;
         let y = stickY / 100;
@@ -161,41 +161,31 @@ namespace battle_bot {
     }
 
     /**
-     * Get the joystick X position. Returns a number from -100 to 100.
+     * Get the joystick position. Returns -100 to 100 where 0 is the center position.
      */
-    //% blockId=battle_bot_getStickX
+    //% blockId=battle_bot_getStick
     //% block="joystick %axis"
     //% group="Controller"
-    export function getStickX(axis: StickAxis): number {
+    export function getStick(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX * 100;
         if (axis == StickAxis.Y) return stickY * 100;
         return undefined;
     }
 
-    /**
-     * Get the joystick Y position. Returns a number from -100 to 100.
-     */
-    //% blockId=battle_bot_getStickY
-    //% block="joystick %axis"
+    //% blockHidden=true
+    //% blockId=battle_bot_getStickX
+    //% block="joystick X"
     //% group="Controller"
-    export function getStickY(axis: StickAxisYFirst): number {
-        if (axis == StickAxisYFirst.X) return stickX * 100;
-        if (axis == StickAxisYFirst.Y) return stickY * 100;
-        return undefined;
+    export function _getStickX(): number {
+        return getStick(StickAxis.X);
     }
 
-    /**
-     * Get advanced joystick values (magnitude or angle). For advanced users.
-     */
-    //% block="joystick %axis"
+    //% blockHidden=true
+    //% blockId=battle_bot_getStickY
+    //% block="joystick Y"
     //% group="Controller"
-    //% advanced=true
-    export function getStickAdvanced(axis: StickAxisAdvanced): number {
-        if (axis == StickAxisAdvanced.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY)) * 100;
-        if (axis == StickAxisAdvanced.Angle) {
-            return Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2) * 100;
-        }
-        return undefined;
+    export function _getStickY(): number {
+        return getStick(StickAxis.Y);
     }
 
     /**
@@ -460,13 +450,6 @@ namespace battle_bot {
         X,
         //% blockId="Stick Y Axis" block="Y"
         Y,
-    }
-
-    export enum StickAxisYFirst {
-        //% blockId="Stick Y Axis" block="Y"
-        Y,
-        //% blockId="Stick X Axis" block="X"
-        X,
     }
 
     export enum StickAxisAdvanced {
