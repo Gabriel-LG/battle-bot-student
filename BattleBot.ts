@@ -11,7 +11,7 @@ namespace battle_bot {
     /**
      * Start your BattleBot. Call this first before using any other blocks.
      */
-    //% block
+    //% block="initialize BattleBot with id %id"
     //% id.min=0 id.max=50
     export function initBattleBot(id: number): void {
         radio.setGroup(0);
@@ -49,7 +49,7 @@ namespace battle_bot {
     /**
      * Set how fast a motor spins.
      */
-    //% block
+    //% block="set %motor motor power to %speed"
     //% group="Driving"
     //% speed.min=-1 speed.max=1 speed.defl=0
     export function setMotorPower(motor: Motor, speed: number) {
@@ -71,7 +71,7 @@ namespace battle_bot {
     /**
      * Convert a speed value to the right motor power so your robot moves smoothly.
      */
-    //% block
+    //% block="convert speed %speed to power"
     //% group="Driving"
     //% speed.min=-1 speed.max=1
     export function speedToPower(speed: number): number {
@@ -91,7 +91,7 @@ namespace battle_bot {
     /**
      * Figure out how fast a motor should spin based on the joystick position.
      */
-    //% block
+    //% block="calculate %motor motor speed from stick X %stickX Y %stickY"
     //% group="Driving"
     //% stickX.min=-1 stickX.max=1
     //% stickY.min=-1 stickY.max=1
@@ -132,7 +132,7 @@ namespace battle_bot {
     /**
      * Do something when a controller button is pressed or released.
      */
-    //% block
+    //% block="on button %button %state"
     //% group="Controller"
     export function onButtonPress(button: Button, state: ButtonState, handler: () => void): void {
         if (state == ButtonState.pressed) buttonHandlers[button].setHandler = handler;
@@ -142,7 +142,7 @@ namespace battle_bot {
     /**
      * Get the joystick position. Returns a number from -1 to 1.
      */
-    //% block
+    //% block="joystick %axis"
     //% group="Controller"
     export function getStick(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX;
@@ -157,7 +157,7 @@ namespace battle_bot {
     /**
      * Check if a controller button is being pressed right now.
      */
-    //% block
+    //% block="button %button is pressed"
     //% group="Controller"
     export function getButtonState(button: Button): boolean {
         return buttonHandlers[button].getState();
@@ -166,7 +166,7 @@ namespace battle_bot {
     /**
      * Move a servo to an angle (0 to 180 degrees).
      */
-    //% block
+    //% block="set servo %servo to %angle degrees"
     //% group=Servos
     //% angle.min=0 angle.max=180 angle.defl=90
     export function moveServo(servo: AllServos, angle: number): void
@@ -199,7 +199,7 @@ namespace battle_bot {
     /**
      * Get the current angle of a servo (0 to 180 degrees).
      */
-    //% block
+    //% block="servo %servo position"
     //% group=Servos
     export function servoPosition(servo: AllServos): number
     {
@@ -209,7 +209,7 @@ namespace battle_bot {
     /**
      * Turn off a servo so you can move it by hand.
      */
-    //% block
+    //% block="disable servo %servo"
     //% group=Servos
     export function disableServo(servo: MicrobitServos)
     {
@@ -318,7 +318,7 @@ namespace battle_bot {
     /**
      * Check if a line sensor sees a dark line.
      */
-    //% block
+    //% block="%sensor line sensor detects line"
     //% group=Sensors
     export function readLineSensor(sensor: LineSensor): boolean {
         if (sensor == LineSensor.Left) {
@@ -333,7 +333,7 @@ namespace battle_bot {
     /**
      * Do something when a line sensor finds or loses a line.
      */
-    //% block
+    //% block="on %sensor line sensor %event"
     //% group=Sensors
     export function onLineSensor(sensor: LineSensor, event: LineSensorEvents, handler: ()=>void): void {
         //let event = line ? PinEvent.Rise : PinEvent.Fall;
@@ -349,8 +349,9 @@ namespace battle_bot {
     /**
      * Turn a front LED on or off.
      */
-    //% block
+    //% block="set %led front LED %on"
     //% group=Lights
+    //% on.shadow="toggleOnOff"
     export function frontLed(led: FrontLed, on: boolean): void {
         if (led == FrontLed.Left) pins.P8.digitalWrite(on);
         else if (led == FrontLed.Right) pins.P12.digitalWrite(on);
@@ -359,7 +360,7 @@ namespace battle_bot {
     /**
      * Set up the colorful LED strip (4 LEDs). Use the strip variable to change colors.
      */
-    //% block
+    //% block="initialize LED strip"
     //% group=Lights
     //% blockSetVariable=strip
     export function initLeds(): neopixel.Strip {
@@ -369,7 +370,7 @@ namespace battle_bot {
     /**
      * Test your victory celebration without needing to actually win.
      */
-    //% block
+    //% block="test victory"
     //% group=Victory
     export function testVictory(): void {
         victoryHandler.setState(false);
@@ -380,7 +381,7 @@ namespace battle_bot {
     /**
      * Do something when your robot wins! Make it dance, flash lights, or play sounds.
      */
-    //% block
+    //% block="on victory"
     //% group=Victory
     export function onVictory(handler: () => void): void {
         victoryHandler.setHandler = handler;
