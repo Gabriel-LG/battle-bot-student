@@ -1,5 +1,5 @@
 {
-  "battle_bot.initBattleBot|block": "verbind met controller %id",
+  "battle_bot.initBattleBot|block": "NEDERLANDS verbind met controller %id",
   "battle_bot.setMotorSpeed|block": "zet %motor motor snelheid op %speed \\%",
   "battle_bot.setMotorRawPower|block": "zet %motor motor ruwe kracht op %power \\%",
   "battle_bot.speedToPower|block": "converteer %speed \\% snelheid naar kracht \\%",
