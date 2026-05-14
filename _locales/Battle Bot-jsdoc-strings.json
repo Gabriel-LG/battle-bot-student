@@ -1,0 +1,21 @@
+{
+  "battlebot": "BattleBot Extension for micro:bit\r\nProvides blocks for controlling battle robots with motors, servos, sensors, and wireless controllers.",
+  "battlebot.Ultrasonic": "Measure the ultrasonic sensor distance in cm\r\n500 means nothing detected",
+  "battlebot.calculateMotorSpeed": "Calculate motor speed based on the stick position.",
+  "battlebot.disableServo": "Turn off the servo so you can move it by hand.",
+  "battlebot.frontLed": "Turn the front LED on or off.",
+  "battlebot.getButtonState": "Check if the controller button is pressed right now.",
+  "battlebot.getStick": "Get the stick position. left/reverse=-100, right/forward=100, 0=center.",
+  "battlebot.initBattleBot": "Enter your controller number here.",
+  "battlebot.initLeds": "Set up the (4) RGB LEDs. Use Neopixel to set colors",
+  "battlebot.moveServo": "Move the servo to a position (0° to 180°).",
+  "battlebot.onButtonPress": "Do something when the controller button is pressed or released.",
+  "battlebot.onLineSensor": "Do something when the arena edge is detected.",
+  "battlebot.onVictory": "Do something when your robot wins!",
+  "battlebot.readLineSensor": "Check if the the robot is on the arena edge.",
+  "battlebot.servoPosition": "Get the current position of the servo (0° to 180°).",
+  "battlebot.setMotorRawPower": "Set motor power directly without conversion. For advanced users.",
+  "battlebot.setMotorSpeed": "Set how fast the motor spins. Use negative numbers to go backwards.",
+  "battlebot.speedToPower": "Convert speed to motor power for smooth movement. For advanced users.",
+  "battlebot.testVictory": "Test your victory celebration without needing to actually win."
+}
