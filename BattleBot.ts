@@ -51,7 +51,7 @@ namespace battle_bot {
      */
     //% block="set %motor motor power to %speed"
     //% group="Driving"
-    //% speed.min=-1 speed.max=1 speed.defl=0
+    //% speed.min=-1 speed.max=1 speed.defl=0 speed.step=0.01
     export function setMotorPower(motor: Motor, speed: number) {
         if (motor != Motor.Left && motor != Motor.Right) return; //sanity check
         
@@ -73,7 +73,7 @@ namespace battle_bot {
      */
     //% block="convert speed %speed to power"
     //% group="Driving"
-    //% speed.min=-1 speed.max=1
+    //% speed.min=-1 speed.max=1 speed.step=0.01
     export function speedToPower(speed: number): number {
         const s = Math.clamp(0, 1, Math.abs(speed));
 
@@ -93,8 +93,8 @@ namespace battle_bot {
      */
     //% block="calculate %motor motor speed from stick X %stickX Y %stickY"
     //% group="Driving"
-    //% stickX.min=-1 stickX.max=1
-    //% stickY.min=-1 stickY.max=1
+    //% stickX.min=-1 stickX.max=1 stickX.step=0.01
+    //% stickY.min=-1 stickY.max=1 stickY.step=0.01
     export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
         let magnitude = Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
         let angle = Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
