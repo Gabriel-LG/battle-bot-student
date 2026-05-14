@@ -1,6 +1,6 @@
 {
-    "name": "Battle Bot",
-    "version": "0.2.5",
+    "name": "battlebot",
+    "version": "0.2.9",
     "description": "",
     "dependencies": {
         "core": "*",
