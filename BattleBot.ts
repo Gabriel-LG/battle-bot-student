@@ -105,13 +105,13 @@ namespace battle_bot {
     /**
      * Figure out how fast a motor should spin based on the joystick position.
      */
-    //% block="convert %stickX %stickY to %motor motor speed"
+    //% block="calculate %motor motor speed using %stickX and %stickY"
     //% group="Driving"
     //% stickX.min=-100 stickX.max=100
     //% stickY.min=-100 stickY.max=100
     //% stickX.shadow="battle_bot_getStickX"
     //% stickY.shadow="battle_bot_getStickY"
-    export function calculateMotorSpeed(stickX: number, stickY: number, motor: Motor): number {
+    export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
         // Convert percentages to scalars for math
         let x = stickX / 100;
         let y = stickY / 100;
