@@ -109,6 +109,8 @@ namespace battle_bot {
     //% group="Driving"
     //% stickX.min=-100 stickX.max=100
     //% stickY.min=-100 stickY.max=100
+    //% stickX.shadow="battle_bot_getStick"
+    //% stickY.shadow="battle_bot_getStickY"
     export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
         // Convert percentages to scalars for math
         let x = stickX / 100;
@@ -163,10 +165,23 @@ namespace battle_bot {
      */
     //% block="joystick %axis"
     //% group="Controller"
+    //% axis.defl=StickAxis.X
     export function getStick(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX * 100;
         if (axis == StickAxis.Y) return stickY * 100;
         return undefined;
+    }
+
+    /**
+     * Get the joystick Y position. Alias for getStick with Y default.
+     */
+    //% blockId="battle_bot_getStickY"
+    //% block="joystick %axis"
+    //% group="Controller"
+    //% axis.defl=StickAxis.Y
+    //% blockAliasFor="battle_bot.getStick"
+    export function _getStickY(axis: StickAxis): number {
+        return getStick(axis);
     }
 
     /**
