@@ -350,9 +350,9 @@ namespace battle_bot {
     /* **************** end copied from DFRobot Maqueen extension ****************** */
 
     /**
-     * Check if a line sensor sees a dark line.
+     * Check if the left or right side of the robot is on the arena edge.
      */
-    //% block="%sensor line sensor detects line"
+    //% block="%sensor side is on the edge"
     //% group=Sensors
     export function readLineSensor(sensor: LineSensor): boolean {
         if (sensor == LineSensor.Left) {
@@ -365,18 +365,17 @@ namespace battle_bot {
     }
 
     /**
-     * Do something when a line sensor finds or loses a line.
+     * Do something when the left or right side enters or leaves the arena edge.
      */
-    //% block="on %sensor line sensor %event"
+    //% block="when %sensor side %event the edge"
     //% group=Sensors
     export function onLineSensor(sensor: LineSensor, event: LineSensorEvents, handler: ()=>void): void {
-        //let event = line ? PinEvent.Rise : PinEvent.Fall;
         if (sensor == LineSensor.Left) {
-            if(event == LineSensorEvents.Found) lineSensorLeftHandler.setHandler = handler;
-            else if (event == LineSensorEvents.Lost) lineSensorLeftHandler.clearHandler = handler;
+            if(event == LineSensorEvents.Enters) lineSensorLeftHandler.setHandler = handler;
+            else if (event == LineSensorEvents.Leaves) lineSensorLeftHandler.clearHandler = handler;
         } else if (sensor == LineSensor.Right) {
-            if (event == LineSensorEvents.Found) lineSensorRightHandler.setHandler = handler;
-            else if (event == LineSensorEvents.Lost) lineSensorRightHandler.clearHandler = handler;
+            if (event == LineSensorEvents.Enters) lineSensorRightHandler.setHandler = handler;
+            else if (event == LineSensorEvents.Leaves) lineSensorRightHandler.clearHandler = handler;
         }
     }
 
@@ -467,17 +466,17 @@ namespace battle_bot {
     }
 
     export enum LineSensor {
-        //% blockid="Left line sensor" block="left"
+        //% blockid="Left side" block="left"
         Left = 0,
-        //% blockid="Right line sensor" block="right"
+        //% blockid="Right side" block="right"
         Right = 2,
     }
 
     export enum LineSensorEvents {
-        //% blockid="Line lost" block="lost"
-        Lost = 0,
-        //% blockid="Line found" block="found"
-        Found = 1,
+        //% blockid="Leaves edge" block="leaves"
+        Leaves = 0,
+        //% blockid="Enters edge" block="enters"
+        Enters = 1,
     }
 
     export enum FrontLed {
