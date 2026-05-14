@@ -49,9 +49,9 @@ namespace battle_bot {
     /**
      * Set how fast a motor spins.
      */
-    //% block="set %motor motor power to %speed"
+    //% block="set %motor motor power to %speed \\%"
     //% group="Driving"
-    //% speed.min=-1 speed.max=1 speed.defl=0 speed.step=0.01
+    //% speed.min=-100 speed.max=100 speed.defl=0
     export function setMotorPower(motor: Motor, speed: number) {
         if (motor != Motor.Left && motor != Motor.Right) return; //sanity check
         
@@ -60,7 +60,7 @@ namespace battle_bot {
         let buf = pins.createBuffer(3);
         buf[0] = <uint8>motor;
         buf[1] = speed > 0 ? 0 : 1;
-        buf[2] = <uint8>Math.clamp(0, 255, Math.abs(speed) * 255);
+        buf[2] = <uint8>Math.clamp(0, 255, Math.abs(speed) * 255 / 100);
         
         for (let retries = 0; retries < 3; retries++)
         {
@@ -71,11 +71,11 @@ namespace battle_bot {
     /**
      * Convert a speed value to the right motor power so your robot moves smoothly.
      */
-    //% block="convert speed %speed to power"
+    //% block="convert speed %speed \\% to power"
     //% group="Driving"
-    //% speed.min=-1 speed.max=1 speed.step=0.01
+    //% speed.min=-100 speed.max=100
     export function speedToPower(speed: number): number {
-        const s = Math.clamp(0, 1, Math.abs(speed));
+        const s = Math.clamp(0, 1, Math.abs(speed) / 100);
 
         // Algebraically solved inverse of the saturation curve:
         // s = ( 1.04 * Math.power(power, 1.85) ) / ( 0.04 + Math.power(power, 1.85) )
@@ -85,7 +85,7 @@ namespace battle_bot {
         if (power > 1) power = 1;
         if (power < 0.1) return 0;
 
-        return speed < 0 ? -power : power;
+        return (speed < 0 ? -power : power) * 100;
     }
 
     /**
@@ -93,11 +93,15 @@ namespace battle_bot {
      */
     //% block="calculate %motor motor speed from stick X %stickX Y %stickY"
     //% group="Driving"
-    //% stickX.min=-1 stickX.max=1 stickX.step=0.01
-    //% stickY.min=-1 stickY.max=1 stickY.step=0.01
+    //% stickX.min=-100 stickX.max=100
+    //% stickY.min=-100 stickY.max=100
     export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
-        let magnitude = Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
-        let angle = Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
+        // Convert percentages to scalars for math
+        let x = stickX / 100;
+        let y = stickY / 100;
+        
+        let magnitude = Math.clamp(0, 1, Math.sqrt(x * x + y * y));
+        let angle = Math.atan2(x, Math.abs(y)) / (Math.PI / 2);
 
         let leftSpeed: number = 0;
         let rightSpeed: number = 0;
@@ -114,7 +118,7 @@ namespace battle_bot {
             angle = -1 + (1 + angle) / 0.25 / 2;
         }
 
-        if (stickY >= 0) //forward
+        if (y >= 0) //forward
         {
             leftSpeed = magnitude + magnitude * angle * 2;
             rightSpeed = magnitude - magnitude * angle * 2;
@@ -125,8 +129,9 @@ namespace battle_bot {
             rightSpeed = -magnitude - magnitude * angle * 2;
         }
 
-        if (motor == Motor.Left) return leftSpeed;
-        else return rightSpeed;
+        // Convert back to percentage
+        if (motor == Motor.Left) return leftSpeed * 100;
+        else return rightSpeed * 100;
     }
 
     /**
@@ -140,16 +145,16 @@ namespace battle_bot {
     }
 
     /**
-     * Get the joystick position. Returns a number from -1 to 1.
+     * Get the joystick position. Returns a number from -100 to 100.
      */
     //% block="joystick %axis"
     //% group="Controller"
     export function getStick(axis: StickAxis): number {
-        if (axis == StickAxis.X) return stickX;
-        if (axis == StickAxis.Y) return stickY;
-        if (axis == StickAxis.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY));
+        if (axis == StickAxis.X) return stickX * 100;
+        if (axis == StickAxis.Y) return stickY * 100;
+        if (axis == StickAxis.Magnitude) return Math.clamp(0, 1, Math.sqrt(stickX * stickX + stickY * stickY)) * 100;
         if (axis == StickAxis.Angle) {
-            return Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2);
+            return Math.atan2(stickX, Math.abs(stickY)) / (Math.PI / 2) * 100;
         }
         return undefined;
     }
