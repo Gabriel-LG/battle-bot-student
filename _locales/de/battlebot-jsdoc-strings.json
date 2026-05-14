@@ -1,0 +1,4 @@
+{
+  "battlebot.initBattleBot": "Verbinde deinen BattleBot mit dem Controller.",
+  "battlebot.initBattleBot|param|id": "Die Nummer deines Controllers"
+}
