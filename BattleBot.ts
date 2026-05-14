@@ -47,7 +47,7 @@ namespace battle_bot {
     }
 
     /**
-     * Set how fast a motor spins.
+     * Command how fast the motor must turn.
      */
     //% block="set %motor motor speed to %speed \\%"
     //% group="Driving"
@@ -103,7 +103,7 @@ namespace battle_bot {
     }
 
     /**
-     * Calculate how the motor speed based on the stick position.
+     * Calculate motor speed based on the stick position.
      */
     //% block="calculate %motor motor speed using %stickX and %stickY"
     //% group="Driving"
@@ -381,7 +381,7 @@ namespace battle_bot {
     }
 
     /**
-     * Turn a front LED on or off.
+     * Turn the front LED on or off.
      */
     //% block="set %led front LED %on"
     //% group=Lights
@@ -394,7 +394,7 @@ namespace battle_bot {
     /**
      * Set up the (4) RGB LEDs. Use Neopixel to set colors
      */
-    //% block="RGB lights"
+    //% block="bottom RGB lights"
     //% group=Lights
     //% blockSetVariable=strip
     export function initLeds(): neopixel.Strip {
@@ -413,7 +413,7 @@ namespace battle_bot {
 
 
     /**
-     * Do something when your robot wins! Make it dance, flash lights, or play sounds.
+     * Do something when your robot wins!
      */
     //% block="on victory"
     //% group=Victory
