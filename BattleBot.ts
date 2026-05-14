@@ -223,6 +223,7 @@ namespace battle_bot {
      */
     //% block="connect to controller %id"
     //% id.min=0 id.max=15
+    //% weight=200
     export function initBattleBot(id: number): void {
         radio.setGroup(0);
         radio.setFrequencyBand(id * 5);
@@ -266,6 +267,7 @@ namespace battle_bot {
     //% block="set %motor motor speed to %speed \\%"
     //% group="Driving"
     //% speed.min=-100 speed.max=100 speed.defl=0
+    //% weight=190
     export function setMotorSpeed(motor: Motor, speed: number) {
         // Apply speed-to-power conversion for smooth movement
         const power = speedToPower(speed);
@@ -279,6 +281,7 @@ namespace battle_bot {
     //% group="Driving"
     //% power.min=-100 power.max=100 power.defl=0
     //% advanced=true
+    //% weight=90
     export function setMotorRawPower(motor: Motor, power: number) {
         if (motor != Motor.Left && motor != Motor.Right) return; //sanity check
         
@@ -302,6 +305,7 @@ namespace battle_bot {
     //% group="Driving"
     //% speed.min=-100 speed.max=100
     //% advanced=true
+    //% weight=80
     export function speedToPower(speed: number): number {
         const s = Math.clamp(0, 1, Math.abs(speed) / 100);
 
@@ -325,6 +329,7 @@ namespace battle_bot {
     //% stickY.min=-100 stickY.max=100
     //% stickX.shadow="battle_bot_getStickX"
     //% stickY.shadow="battle_bot_getStickY"
+    //% weight=180
     export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
         // Convert percentages to scalars for math
         let x = stickX / 100;
@@ -373,6 +378,7 @@ namespace battle_bot {
      */
     //% block="when button %button is %state"
     //% group="Controller"
+    //% weight=160
     export function onButtonPress(button: Button, state: ButtonState, handler: () => void): void {
         if (state == ButtonState.pressed) buttonHandlers[button].setHandler = handler;
         if (state == ButtonState.released) buttonHandlers[button].clearHandler = handler;
@@ -384,6 +390,7 @@ namespace battle_bot {
     //% blockId=battle_bot_getStick
     //% block="stick %axis"
     //% group="Controller"
+    //% weight=170
     export function getStick(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX * 100;
         if (axis == StickAxis.Y) return stickY * 100;
@@ -411,6 +418,7 @@ namespace battle_bot {
      */
     //% block="button %button is pressed"
     //% group="Controller"
+    //% weight=150
     export function getButtonState(button: Button): boolean {
         return buttonHandlers[button].getState();
     }
@@ -425,6 +433,7 @@ namespace battle_bot {
     //% block="move servo %servo to %angle °"
     //% group=Servos
     //% angle.min=0 angle.max=180 angle.defl=90
+    //% weight=110
     export function moveServo(servo: AllServos, angle: number): void
     {
         if(angle > 180) angle = 180;
@@ -457,6 +466,7 @@ namespace battle_bot {
      */
     //% block="servo %servo position"
     //% group=Servos
+    //% weight=100
     export function servoPosition(servo: AllServos): number
     {
         return servoPositions[servo];
@@ -467,6 +477,7 @@ namespace battle_bot {
      */
     //% block="disable servo %servo"
     //% group=Servos
+    //% weight=95
     export function disableServo(servo: MicrobitServos)
     {
         switch(servo)
@@ -496,6 +507,7 @@ namespace battle_bot {
     //% blockId=ultrasonic_sensor 
     //% block="distance sensor (cm)"
     //% group="Sensors"
+    //% weight=120
     export function Ultrasonic(): number {
         let data;
         let i = 0;
@@ -530,6 +542,7 @@ namespace battle_bot {
      */
     //% block="%sensor side is on the edge"
     //% group=Sensors
+    //% weight=140
     export function readLineSensor(sensor: LineSensor): boolean {
         if (sensor == LineSensor.Left) {
             return pins.digitalReadPin(DigitalPin.P13) != 0;
@@ -545,6 +558,7 @@ namespace battle_bot {
      */
     //% block="when %sensor side %event the edge"
     //% group=Sensors
+    //% weight=130
     export function onLineSensor(sensor: LineSensor, event: LineSensorEvents, handler: ()=>void): void {
         if (sensor == LineSensor.Left) {
             if(event == LineSensorEvents.Enters) lineSensorLeftHandler.setHandler = handler;
@@ -565,6 +579,7 @@ namespace battle_bot {
     //% block="set %led front LED %on"
     //% group=Lights
     //% on.shadow="toggleOnOff"
+    //% weight=85
     export function frontLed(led: FrontLed, on: boolean): void {
         if (led == FrontLed.Left) pins.P8.digitalWrite(on);
         else if (led == FrontLed.Right) pins.P12.digitalWrite(on);
@@ -576,6 +591,7 @@ namespace battle_bot {
     //% block="bottom RGB lights"
     //% group=Lights
     //% blockSetVariable=strip
+    //% weight=75
     export function initLeds(): neopixel.Strip {
         return neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB);
     }
@@ -589,6 +605,7 @@ namespace battle_bot {
      */
     //% block="test victory"
     //% group=Victory
+    //% weight=60
     export function testVictory(): void {
         victoryHandler.setState(false);
         victoryHandler.setState(true);
@@ -599,6 +616,7 @@ namespace battle_bot {
      */
     //% block="on victory"
     //% group=Victory
+    //% weight=70
     export function onVictory(handler: () => void): void {
         victoryHandler.setHandler = handler;
     }
