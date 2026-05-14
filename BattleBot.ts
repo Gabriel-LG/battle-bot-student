@@ -12,7 +12,7 @@ namespace battle_bot {
      * Start your BattleBot. Call this first before using any other blocks.
      */
     //% block="initialize BattleBot with id %id"
-    //% id.min=0 id.max=50
+    //% id.min=0 id.max=15
     export function initBattleBot(id: number): void {
         radio.setGroup(0);
         radio.setFrequencyBand(id * 5);
