@@ -4,7 +4,6 @@
  * Provides blocks for controlling battle robots with motors, servos, sensors, and wireless controllers.
  */
 //% weight=100 color=#EE7202 icon="\uf3ed"
-//% block="BattleBot"
 //% groups=["Driving", "Controller", "Servos", "Sensors", "Lights", "Victory"]
 namespace battlebot {
 
