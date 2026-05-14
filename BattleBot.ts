@@ -82,7 +82,7 @@ namespace battle_bot {
     }
 
     /**
-     * Convert a speed value to motor power for smooth movement. For advanced users.
+     * Convert speed to motor power for smooth movement. For advanced users.
      */
     //% block="convert %speed \\% speed to power \\%"
     //% group="Driving"
@@ -103,7 +103,7 @@ namespace battle_bot {
     }
 
     /**
-     * Calculate how fast the motor should spin based on the joystick position.
+     * Calculate how the motor speed based on the stick position.
      */
     //% block="calculate %motor motor speed using %stickX and %stickY"
     //% group="Driving"
@@ -151,7 +151,7 @@ namespace battle_bot {
     }
 
     /**
-     * Do something when a controller button is pressed or released.
+     * Do something when the controller button is pressed or released.
      */
     //% block="when button %button is %state"
     //% group="Controller"
@@ -161,10 +161,10 @@ namespace battle_bot {
     }
 
     /**
-     * Get the joystick position. Returns -100 to 100 where 0 is the center position.
+     * Get the stick position. left/reverse=-100, right/forward=100, 0=center.
      */
     //% blockId=battle_bot_getStick
-    //% block="joystick %axis"
+    //% block="stick %axis"
     //% group="Controller"
     export function getStick(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX * 100;
@@ -174,7 +174,7 @@ namespace battle_bot {
 
     //% blockHidden=true
     //% blockId=battle_bot_getStickX
-    //% block="joystick X"
+    //% block="stick X"
     //% group="Controller"
     export function _getStickX(): number {
         return getStick(StickAxis.X);
@@ -182,14 +182,14 @@ namespace battle_bot {
 
     //% blockHidden=true
     //% blockId=battle_bot_getStickY
-    //% block="joystick Y"
+    //% block="stick Y"
     //% group="Controller"
     export function _getStickY(): number {
         return getStick(StickAxis.Y);
     }
 
     /**
-     * Check if a controller button is being pressed right now.
+     * Check if the controller button is pressed right now.
      */
     //% block="button %button is pressed"
     //% group="Controller"
@@ -198,7 +198,7 @@ namespace battle_bot {
     }
 
     /**
-     * Move a servo to a position (0° to 180°).
+     * Move the servo to a position (0° to 180°).
      */
     //% block="move servo %servo to %angle °"
     //% group=Servos
@@ -231,7 +231,7 @@ namespace battle_bot {
     }
 
     /**
-     * Get the current position of a servo (0° to 180°).
+     * Get the current position of the servo (0° to 180°).
      */
     //% block="servo %servo position"
     //% group=Servos
@@ -285,7 +285,8 @@ namespace battle_bot {
     let state1 = 0;
     
     /**
-     * Measure distance using the ultrasonic sensor. Returns distance in centimeters (or 500 if nothing detected).
+     * Measure the ultrasonic sensor distance in cm
+     * 500 means nothing detected
      */
     //% blockId=ultrasonic_sensor 
     //% block="read ultrasonic sensor in cm"
@@ -350,7 +351,7 @@ namespace battle_bot {
     /* **************** end copied from DFRobot Maqueen extension ****************** */
 
     /**
-     * Check if the left or right side of the robot is on the arena edge.
+     * Check if the the robot is on the arena edge.
      */
     //% block="%sensor side is on the edge"
     //% group=Sensors
@@ -365,7 +366,7 @@ namespace battle_bot {
     }
 
     /**
-     * Do something when the arena edge iss detected.
+     * Do something when the arena edge is detected.
      */
     //% block="when %sensor side %event the edge"
     //% group=Sensors
@@ -414,7 +415,7 @@ namespace battle_bot {
     /**
      * Do something when your robot wins! Make it dance, flash lights, or play sounds.
      */
-    //% block="victory"
+    //% block="on victory"
     //% group=Victory
     export function onVictory(handler: () => void): void {
         victoryHandler.setHandler = handler;
