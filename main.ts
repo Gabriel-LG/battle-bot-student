@@ -1,4 +1,7 @@
-battle_bot.onVictory(function () {
+battlebot.onButtonPress(battlebot.Button.A, battlebot.ButtonState.pressed, function () {
+    battlebot.testVictory()
+})
+battlebot.onVictory(function () {
     for (let index = 0; index < 360; index++) {
         strip.showRainbow(start_color, (start_color + 288) % 360)
         start_color = (start_color + 1) % 360
@@ -7,14 +10,11 @@ battle_bot.onVictory(function () {
     strip.clear()
     strip.show()
 })
-battle_bot.onButtonPress(battle_bot.Button.A, battle_bot.ButtonState.pressed, function () {
-    battle_bot.testVictory()
-})
 let start_color = 0
 let strip: neopixel.Strip = null
-battle_bot.initBattleBot(0)
-strip = battle_bot.initLeds()
+battlebot.initBattleBot(0)
+strip = battlebot.initLeds()
 basic.forever(function () {
-    battle_bot.setMotorSpeed(battle_bot.Motor.Left, battle_bot.calculateMotorSpeed(battle_bot.Motor.Left, battle_bot._getStickX(), battle_bot._getStickY()))
-    battle_bot.setMotorSpeed(battle_bot.Motor.Right, battle_bot.calculateMotorSpeed(battle_bot.Motor.Right, battle_bot._getStickX(), battle_bot._getStickY()))
+    battlebot.setMotorSpeed(battlebot.Motor.Left, battlebot.calculateMotorSpeed(battlebot.Motor.Left, battlebot._getStickX(), battlebot._getStickY()))
+    battlebot.setMotorSpeed(battlebot.Motor.Right, battlebot.calculateMotorSpeed(battlebot.Motor.Right, battlebot._getStickX(), battlebot._getStickY()))
 })
