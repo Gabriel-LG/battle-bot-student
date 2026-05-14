@@ -8,6 +8,216 @@
 //% groups=["Driving", "Controller", "Servos", "Sensors", "Lights", "Victory"]
 namespace battle_bot {
 
+    // ============================================
+    // TYPE DECLARATIONS (ENUMS)
+    // ============================================
+
+    export enum Button {
+        //% blockId="Controller button A" block="A"
+        A = 0,
+        //% blockId="Controller button B" block="B"
+        B = 1,
+        //% blockId="Controller button C" block="C"
+        C = 2,
+        //% blockId="Controller button D" block="D"
+        D = 3,
+        //% blockId="Controller button E" block="E"
+        E = 4,
+        //% blockId="Controller button F" block="F"
+        F = 5,
+        //% blockId="Controller Logo touched" block="Logo"
+        Logo = 6
+    }
+
+    export enum ButtonState {
+        //% blockId="Controller button pressed" block="Pressed"
+        pressed = 0,
+        //% blockId="Controller button released" block="Released"
+        released = 1,
+    }
+
+    export enum StickAxis {
+        //% blockId="Stick X Axis" block="X"
+        X,
+        //% blockId="Stick Y Axis" block="Y"
+        Y,
+    }
+
+    export enum StickAxisAdvanced {
+        //% blockId="Stick Magnitude" block="Magnitude"
+        Magnitude,
+        //% blockId="Stick angle" block="Angle"
+        Angle,
+    }
+
+    export enum Motor {
+        //% blockId="Left motor" block="Left"
+        Left = 0,
+        //% blockId="Right motor" block="Right"
+        Right = 2,
+    }
+
+    export enum LineSensor {
+        //% blockId="Left side" block="Left"
+        Left = 0,
+        //% blockId="Right side" block="Right"
+        Right = 2,
+    }
+
+    export enum LineSensorEvents {
+        //% blockId="Leaves edge" block="Leaves"
+        Leaves = 0,
+        //% blockId="Enters edge" block="Enters"
+        Enters = 1,
+    }
+
+    export enum FrontLed {
+        //% blockId="Front LED left" block="Left"
+        Left = 0,
+        //% blockId="Front LED right" block="Right"
+        Right = 1,
+    }
+
+    export enum AllServos {
+        //% blockId="Servo S1" block="S1"
+        S1 = 0,
+        //% blockId="Servo S2" block="S2"
+        S2 = 1,
+        //% blockId="Servo P0" block="P0"
+        P0 = 2,
+        //% blockId="Servo P1" block="P1"
+        P1 = 3,
+        //% blockId="Servo P2" block="P2"
+        P2 = 4,
+    }
+
+    export enum MicrobitServos {
+        //% blockId="Servo P0" block="P0"
+        P0 = 2,
+        //% blockId="Servo P1" block="P1"
+        P1 = 3,
+        //% blockId="Servo P2" block="P2"
+        P2 = 4,
+    }
+
+    // ============================================
+    // CLASSES
+    // ============================================
+
+    /**
+     * BooleanStateHandler - Thread-safe state machine for boolean events
+     * 
+     * Manages state transitions and executes callbacks in parallel fibers.
+     * Used throughout BattleBot for buttons, line sensors, and victory events.
+     * 
+     * Behavior:
+     * - State false → true: calls setHandler
+     * - State true → false: calls clearHandler
+     * - No-op if state doesn't change
+     * 
+     * Concurrency guarantees:
+     * - Handlers execute in parallel fibers (non-blocking)
+     * - Only one handler active per instance at a time
+     * - State changes during handler execution are deferred
+     * - After handler completes, if state changed, opposite handler runs
+     * 
+     * This prevents race conditions and ensures handlers complete before
+     * their counterpart runs.
+     */
+    class BooleanStateHandler {
+        constructor() { }
+
+        private state: boolean = false;
+        setHandler: () => void = undefined;
+        clearHandler: () => void = undefined;
+        private handlerRunning: boolean = false;
+
+        getState(): boolean
+        {
+            return this.state;
+        }
+
+        /**
+         * Update state and trigger appropriate handler.
+         * 
+         * @param newState New state value
+         */
+        setState(newState: boolean): void {
+            //no change, nothing to do
+            if (newState == this.state) return;
+            this.state = newState;
+            if (this.handlerRunning) return; //already running a handler
+
+            // set state
+            if (newState && this.setHandler != undefined) {
+                this.handlerRunning = true;
+                control.runInParallel(() => {
+                    //run the set handler
+                    this.setHandler();
+                    //if the state is cleared by now, run the clear handler
+                    if (!this.state && this.clearHandler != undefined) this.clearHandler();
+                    this.handlerRunning = false;
+                });
+            }
+
+            // clear state
+            if (!newState && this.clearHandler != undefined) {
+                this.handlerRunning = true;
+                control.runInParallel(() => {
+                    //run clear handler
+                    this.clearHandler();
+                    //if the state is set by now, run the set handler
+                    if (this.state && this.setHandler != undefined) this.setHandler();
+                    this.handlerRunning = false;
+                });
+            }
+        }
+    }
+
+    // ============================================
+    // MODULE VARIABLES
+    // ============================================
+
+    let started: boolean = false;
+
+    let buttonHandlers: { [key: number]: BooleanStateHandler } =
+    {
+        [0]: new BooleanStateHandler,
+        [1]: new BooleanStateHandler,
+        [2]: new BooleanStateHandler,
+        [3]: new BooleanStateHandler,
+        [4]: new BooleanStateHandler,
+        [5]: new BooleanStateHandler,
+        [6]: new BooleanStateHandler,
+        [7]: new BooleanStateHandler,
+    };
+
+    let stickX: number = 0;
+    let stickY: number = 0;
+
+    let lineSensorLeftHandler: BooleanStateHandler = new BooleanStateHandler;
+    let lineSensorRightHandler: BooleanStateHandler = new BooleanStateHandler;
+
+    let restoreVolume: number = 0;
+    let blockSound: boolean = false;
+    let blockDrive: boolean = false;
+    let victoryHandler: BooleanStateHandler = new BooleanStateHandler;
+
+    let servoPositions: { [key: number]: number} = 
+    {
+        [AllServos.S1]: 90,
+        [AllServos.S2]: 90,
+        [AllServos.P0]: 90,
+        [AllServos.P1]: 90,
+        [AllServos.P2]: 90,
+    }
+
+    let state1 = 0; // ultrasonic sensor state
+
+    // ============================================
+    // PUBLIC FUNCTIONS - INITIALIZATION
+    // ============================================
+
     /**
      * Enter your controller number here.
      */
@@ -45,6 +255,10 @@ namespace battle_bot {
         control.runInParallel(backGroundTask);
         started = true;
     }
+
+    // ============================================
+    // PUBLIC FUNCTIONS - DRIVING
+    // ============================================
 
     /**
      * Set how fast the motor spins. Use negative numbers to go backwards.
@@ -150,6 +364,10 @@ namespace battle_bot {
         else return rightSpeed * 100;
     }
 
+    // ============================================
+    // PUBLIC FUNCTIONS - CONTROLLER
+    // ============================================
+
     /**
      * Do something when the controller button is pressed or released.
      */
@@ -196,6 +414,10 @@ namespace battle_bot {
     export function getButtonState(button: Button): boolean {
         return buttonHandlers[button].getState();
     }
+
+    // ============================================
+    // PUBLIC FUNCTIONS - SERVOS
+    // ============================================
 
     /**
      * Move the servo to a position (0° to 180°).
@@ -261,29 +483,12 @@ namespace battle_bot {
         }
     }
 
-    /**
-     * Internal helper: Send servo angle command to Maqueen motor driver via I2C.
-     * 
-     * @param index Servo identifier (S1 or S2)
-     * @param angle Target angle in degrees (0-180)
-     */
-    function moveMaqueenServo(index: AllServos, angle: number): void {
-        let buf = pins.createBuffer(2);
-        if (index == AllServos.S1) {
-            buf[0] = 0x14;
-        }
-        if (index == AllServos.S2) {
-            buf[0] = 0x15;
-        }
-        buf[1] = angle;
-        pins.i2cWriteBuffer(0x10, buf);
-    }
-    
-
+    // ============================================
+    // PUBLIC FUNCTIONS - SENSORS
+    // ============================================
 
     /* **************** copied from DFRobot Maqueen extension ****************** */
-    let state1 = 0;
-    
+
     /**
      * Measure the ultrasonic sensor distance in cm
      * 500 means nothing detected
@@ -316,36 +521,6 @@ namespace battle_bot {
             data = 500
         return data;
 
-    }
-    
-    /**
-     * Internal helper: Perform ultrasonic distance measurement.
-     * 
-     * Sends trigger pulse on P1, reads echo pulse on P2.
-     * Handles both high and low initial states of echo pin.
-     * 
-     * @returns Raw distance reading in custom units, or 0 on timeout
-     */
-    function readUlt(): number {
-        let d
-        pins.digitalWritePin(DigitalPin.P1, 1);
-        basic.pause(1)
-        pins.digitalWritePin(DigitalPin.P1, 0);
-        if (pins.digitalReadPin(DigitalPin.P2) == 0) {
-            pins.digitalWritePin(DigitalPin.P1, 0);
-            pins.digitalWritePin(DigitalPin.P1, 1);
-            basic.pause(20)
-            pins.digitalWritePin(DigitalPin.P1, 0);
-            d = pins.pulseIn(DigitalPin.P2, PulseValue.High, 500 * 58);//readPulseIn(1);
-        } else {
-            pins.digitalWritePin(DigitalPin.P1, 1);
-            pins.digitalWritePin(DigitalPin.P1, 0);
-            basic.pause(20)
-            pins.digitalWritePin(DigitalPin.P1, 0);
-            d = pins.pulseIn(DigitalPin.P2, PulseValue.Low, 500 * 58);//readPulseIn(0);
-        }
-        let x = d / 59;
-        return Math.idiv(d, 2.54);
     }
 
     /* **************** end copied from DFRobot Maqueen extension ****************** */
@@ -380,6 +555,10 @@ namespace battle_bot {
         }
     }
 
+    // ============================================
+    // PUBLIC FUNCTIONS - LIGHTS
+    // ============================================
+
     /**
      * Turn the front LED on or off.
      */
@@ -401,6 +580,10 @@ namespace battle_bot {
         return neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB);
     }
 
+    // ============================================
+    // PUBLIC FUNCTIONS - VICTORY
+    // ============================================
+
     /**
      * Test your victory celebration without needing to actually win.
      */
@@ -411,7 +594,6 @@ namespace battle_bot {
         victoryHandler.setState(true);
     }
 
-
     /**
      * Do something when your robot wins!
      */
@@ -421,197 +603,56 @@ namespace battle_bot {
         victoryHandler.setHandler = handler;
     }
 
-    export enum Button {
-        //% blockId="Controller button A" block="A"
-        A = 0,
-        //% blockId="Controller button B" block="B"
-        B = 1,
-        //% blockId="Controller button C" block="C"
-        C = 2,
-        //% blockId="Controller button D" block="D"
-        D = 3,
-        //% blockId="Controller button E" block="E"
-        E = 4,
-        //% blockId="Controller button F" block="F"
-        F = 5,
-        //% blockId="Controller Logo touched" block="Logo"
-        Logo = 6
-    }
-
-    export enum ButtonState {
-        //% blockId="Controller button pressed" block="Pressed"
-        pressed = 0,
-        //% blockId="Controller button released" block="Released"
-        released = 1,
-    }
-
-    export enum StickAxis {
-        //% blockId="Stick X Axis" block="X"
-        X,
-        //% blockId="Stick Y Axis" block="Y"
-        Y,
-    }
-
-    export enum StickAxisAdvanced {
-        //% blockId="Stick Magnitude" block="Magnitude"
-        Magnitude,
-        //% blockId="Stick angle" block="Angle"
-        Angle,
-    }
-
-    export enum Motor {
-        //% blockId="Left motor" block="Left"
-        Left = 0,
-        //% blockId="Right motor" block="Right"
-        Right = 2,
-    }
-
-    export enum LineSensor {
-        //% blockId="Left side" block="Left"
-        Left = 0,
-        //% blockId="Right side" block="Right"
-        Right = 2,
-    }
-
-    export enum LineSensorEvents {
-        //% blockId="Leaves edge" block="Leaves"
-        Leaves = 0,
-        //% blockId="Enters edge" block="Enters"
-        Enters = 1,
-    }
-
-    export enum FrontLed {
-        //% blockId="Front LED left" block="Left"
-        Left = 0,
-        //% blockId="Front LED right" block="Right"
-        Right = 1,
-    }
-
-    export enum AllServos {
-        //% blockId="Servo S1" block="S1"
-        S1 = 0,
-        //% blockId="Servo S2" block="S2"
-        S2 = 1,
-        //% blockId="Servo P0" block="P0"
-        P0 = 2,
-        //% blockId="Servo P1" block="P1"
-        P1 = 3,
-        //% blockId="Servo P2" block="P2"
-        P2 = 4,
-    }
-
-    export enum MicrobitServos {
-        //% blockId="Servo P0" block="P0"
-        P0 = 2,
-        //% blockId="Servo P1" block="P1"
-        P1 = 3,
-        //% blockId="Servo P2" block="P2"
-        P2 = 4,
-    }
-
+    // ============================================
+    // PRIVATE HELPER FUNCTIONS
+    // ============================================
 
     /**
-     * BooleanStateHandler - Thread-safe state machine for boolean events
+     * Internal helper: Send servo angle command to Maqueen motor driver via I2C.
      * 
-     * Manages state transitions and executes callbacks in parallel fibers.
-     * Used throughout BattleBot for buttons, line sensors, and victory events.
-     * 
-     * Behavior:
-     * - State false → true: calls setHandler
-     * - State true → false: calls clearHandler
-     * - No-op if state doesn't change
-     * 
-     * Concurrency guarantees:
-     * - Handlers execute in parallel fibers (non-blocking)
-     * - Only one handler active per instance at a time
-     * - State changes during handler execution are deferred
-     * - After handler completes, if state changed, opposite handler runs
-     * 
-     * This prevents race conditions and ensures handlers complete before
-     * their counterpart runs.
+     * @param index Servo identifier (S1 or S2)
+     * @param angle Target angle in degrees (0-180)
      */
-    class BooleanStateHandler {
-        constructor() { }
-
-        private state: boolean = false;
-        setHandler: () => void = undefined;
-        clearHandler: () => void = undefined;
-        private handlerRunning: boolean = false;
-
-        getState(): boolean
-        {
-            return this.state;
+    function moveMaqueenServo(index: AllServos, angle: number): void {
+        let buf = pins.createBuffer(2);
+        if (index == AllServos.S1) {
+            buf[0] = 0x14;
         }
-
-        /**
-         * Update state and trigger appropriate handler.
-         * 
-         * @param newState New state value
-         */
-        setState(newState: boolean): void {
-            //no change, nothing to do
-            if (newState == this.state) return;
-            this.state = newState;
-            if (this.handlerRunning) return; //already running a handler
-
-            // set state
-            if (newState && this.setHandler != undefined) {
-                this.handlerRunning = true;
-                control.runInParallel(() => {
-                    //run the set handler
-                    this.setHandler();
-                    //if the state is cleared by now, run the clear handler
-                    if (!this.state && this.clearHandler != undefined) this.clearHandler();
-                    this.handlerRunning = false;
-                });
-            }
-
-            // clear state
-            if (!newState && this.clearHandler != undefined) {
-                this.handlerRunning = true;
-                control.runInParallel(() => {
-                    //run clear handler
-                    this.clearHandler();
-                    //if the state is set by now, run the set handler
-                    if (this.state && this.setHandler != undefined) this.setHandler();
-                    this.handlerRunning = false;
-                });
-            }
+        if (index == AllServos.S2) {
+            buf[0] = 0x15;
         }
+        buf[1] = angle;
+        pins.i2cWriteBuffer(0x10, buf);
     }
 
-
-    let started: boolean = false;
-
-    let buttonHandlers: { [key: number]: BooleanStateHandler } =
-    {
-        [0]: new BooleanStateHandler,
-        [1]: new BooleanStateHandler,
-        [2]: new BooleanStateHandler,
-        [3]: new BooleanStateHandler,
-        [4]: new BooleanStateHandler,
-        [5]: new BooleanStateHandler,
-        [6]: new BooleanStateHandler,
-        [7]: new BooleanStateHandler,
-    };
-    let stickX: number = 0;
-    let stickY: number = 0;
-
-    let lineSensorLeftHandler: BooleanStateHandler = new BooleanStateHandler;
-    let lineSensorRightHandler: BooleanStateHandler = new BooleanStateHandler;
-
-    let restoreVolume: number = 0;
-    let blockSound: boolean = false;
-    let blockDrive: boolean = false;
-    let victoryHandler: BooleanStateHandler = new BooleanStateHandler;
-
-    let servoPositions: { [key: number]: number} = 
-    {
-        [AllServos.S1]: 90,
-        [AllServos.S2]: 90,
-        [AllServos.P0]: 90,
-        [AllServos.P1]: 90,
-        [AllServos.P2]: 90,
+    /**
+     * Internal helper: Perform ultrasonic distance measurement.
+     * 
+     * Sends trigger pulse on P1, reads echo pulse on P2.
+     * Handles both high and low initial states of echo pin.
+     * 
+     * @returns Raw distance reading in custom units, or 0 on timeout
+     */
+    function readUlt(): number {
+        let d
+        pins.digitalWritePin(DigitalPin.P1, 1);
+        basic.pause(1)
+        pins.digitalWritePin(DigitalPin.P1, 0);
+        if (pins.digitalReadPin(DigitalPin.P2) == 0) {
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            pins.digitalWritePin(DigitalPin.P1, 1);
+            basic.pause(20)
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            d = pins.pulseIn(DigitalPin.P2, PulseValue.High, 500 * 58);//readPulseIn(1);
+        } else {
+            pins.digitalWritePin(DigitalPin.P1, 1);
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            basic.pause(20)
+            pins.digitalWritePin(DigitalPin.P1, 0);
+            d = pins.pulseIn(DigitalPin.P2, PulseValue.Low, 500 * 58);//readPulseIn(0);
+        }
+        let x = d / 59;
+        return Math.idiv(d, 2.54);
     }
 
     /**
