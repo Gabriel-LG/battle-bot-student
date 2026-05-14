@@ -460,30 +460,30 @@ namespace battle_bot {
     }
 
     export enum Motor {
-        //% blockId="Left motor" block="left"
+        //% blockId="Left motor" block="Left"
         Left = 0,
-        //% blockId="Right motor" block="right"
+        //% blockId="Right motor" block="Right"
         Right = 2,
     }
 
     export enum LineSensor {
-        //% blockId="Left side" block="left"
+        //% blockId="Left side" block="Left"
         Left = 0,
-        //% blockId="Right side" block="right"
+        //% blockId="Right side" block="Right"
         Right = 2,
     }
 
     export enum LineSensorEvents {
-        //% blockId="Leaves edge" block="leaves"
+        //% blockId="Leaves edge" block="Leaves"
         Leaves = 0,
-        //% blockId="Enters edge" block="enters"
+        //% blockId="Enters edge" block="Enters"
         Enters = 1,
     }
 
     export enum FrontLed {
-        //% blockId="Front LED left" block="left"
+        //% blockId="Front LED left" block="Left"
         Left = 0,
-        //% blockId="Front LED right" block="right"
+        //% blockId="Front LED right" block="Right"
         Right = 1,
     }
 
