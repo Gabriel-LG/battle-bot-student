@@ -13,90 +13,90 @@ namespace battlebot {
     // ============================================
 
     export enum Button {
-        //% blockId="Controller button A" block="A"
+        //% block="A"
         A = 0,
-        //% blockId="Controller button B" block="B"
+        //% block="B"
         B = 1,
-        //% blockId="Controller button C" block="C"
+        //% block="C"
         C = 2,
-        //% blockId="Controller button D" block="D"
+        //% block="D"
         D = 3,
-        //% blockId="Controller button E" block="E"
+        //% block="E"
         E = 4,
-        //% blockId="Controller button F" block="F"
+        //% block="F"
         F = 5,
-        //% blockId="Controller Logo touched" block="Logo"
+        //% block="Logo"
         Logo = 6
     }
 
     export enum ButtonState {
-        //% blockId="Controller button pressed" block="Pressed"
+        //% block="Pressed"
         pressed = 0,
-        //% blockId="Controller button released" block="Released"
+        //% block="Released"
         released = 1,
     }
 
     export enum StickAxis {
-        //% blockId="Stick X Axis" block="X"
+        //% block="X"
         X,
-        //% blockId="Stick Y Axis" block="Y"
+        //% block="Y"
         Y,
     }
 
     export enum StickAxisAdvanced {
-        //% blockId="Stick Magnitude" block="Magnitude"
+        //% block="Magnitude"
         Magnitude,
-        //% blockId="Stick angle" block="Angle"
+        //% block="Angle"
         Angle,
     }
 
     export enum Motor {
-        //% blockId="Left motor" block="Left"
+        //% block="Left"
         Left = 0,
-        //% blockId="Right motor" block="Right"
+        //% block="Right"
         Right = 2,
     }
 
     export enum LineSensor {
-        //% blockId="Left side" block="Left"
+        //% block="Left"
         Left = 0,
-        //% blockId="Right side" block="Right"
+        //% block="Right"
         Right = 2,
     }
 
     export enum LineSensorEvents {
-        //% blockId="Leaves edge" block="Leaves"
+        //% block="Leaves"
         Leaves = 0,
-        //% blockId="Enters edge" block="Enters"
+        //% block="Enters"
         Enters = 1,
     }
 
     export enum FrontLed {
-        //% blockId="Front LED left" block="Left"
+        //% block="Left"
         Left = 0,
-        //% blockId="Front LED right" block="Right"
+        //% block="Right"
         Right = 1,
     }
 
     export enum AllServos {
-        //% blockId="Servo S1" block="S1"
+        //% block="S1"
         S1 = 0,
-        //% blockId="Servo S2" block="S2"
+        //% block="S2"
         S2 = 1,
-        //% blockId="Servo P0" block="P0"
+        //% block="P0"
         P0 = 2,
-        //% blockId="Servo P1" block="P1"
+        //% block="P1"
         P1 = 3,
-        //% blockId="Servo P2" block="P2"
+        //% block="P2"
         P2 = 4,
     }
 
     export enum MicrobitServos {
-        //% blockId="Servo P0" block="P0"
+        //% block="P0"
         P0 = 2,
-        //% blockId="Servo P1" block="P1"
+        //% block="P1"
         P1 = 3,
-        //% blockId="Servo P2" block="P2"
+        //% block="P2"
         P2 = 4,
     }
 

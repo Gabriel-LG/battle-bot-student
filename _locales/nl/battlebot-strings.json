@@ -1,5 +1,5 @@
 {
-  "battlebot.initBattleBot|block": "NEDERLANDS verbind met controller %id",
+  "battlebot.initBattleBot|block": "verbind met controller %id",
   "battlebot.setMotorSpeed|block": "zet %motor motor snelheid op %speed \\%",
   "battlebot.setMotorRawPower|block": "zet %motor motor ruwe kracht op %power \\%",
   "battlebot.speedToPower|block": "converteer %speed \\% snelheid naar kracht \\%",
@@ -48,7 +48,7 @@
   "battlebot.MicrobitServos.P0|block": "P0",
   "battlebot.MicrobitServos.P1|block": "P1",
   "battlebot.MicrobitServos.P2|block": "P2",
-  "{id:category}BattleBot": "BattleBot NEDERLANDS",
+  "{id:category}BattleBot": "BattleBot",
   "{id:group}Driving": "Rijden",
   "{id:group}Controller": "Controller",
   "{id:group}Servos": "Servo's",
