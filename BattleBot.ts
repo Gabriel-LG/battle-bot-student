@@ -5,7 +5,7 @@
  */
 //% weight=100 color=#EE7202 icon="\uf3ed"
 //% block="BattleBot"
-//% groups=["hoi", "Driving", "Controller", "Servos", "Sensors", "Lights", "Victory"]
+//% groups=["Driving", "Controller", "Servos", "Sensors", "Lights", "Victory"]
 namespace battle_bot {
 
     /**
@@ -47,7 +47,7 @@ namespace battle_bot {
     }
 
     /**
-     * Command how fast the motor must turn.
+     * Set how fast the motor spins. Use negative numbers to go backwards.
      */
     //% block="set %motor motor speed to %speed \\%"
     //% group="Driving"
@@ -289,7 +289,7 @@ namespace battle_bot {
      * 500 means nothing detected
      */
     //% blockId=ultrasonic_sensor 
-    //% block="read ultrasonic sensor in cm"
+    //% block="distance sensor (cm)"
     //% group="Sensors"
     export function Ultrasonic(): number {
         let data;
@@ -460,52 +460,52 @@ namespace battle_bot {
     }
 
     export enum Motor {
-        //% blockid="Left motor" block="left"
+        //% blockId="Left motor" block="left"
         Left = 0,
-        //% blockid="Right motor" block="right"
+        //% blockId="Right motor" block="right"
         Right = 2,
     }
 
     export enum LineSensor {
-        //% blockid="Left side" block="left"
+        //% blockId="Left side" block="left"
         Left = 0,
-        //% blockid="Right side" block="right"
+        //% blockId="Right side" block="right"
         Right = 2,
     }
 
     export enum LineSensorEvents {
-        //% blockid="Leaves edge" block="leaves"
+        //% blockId="Leaves edge" block="leaves"
         Leaves = 0,
-        //% blockid="Enters edge" block="enters"
+        //% blockId="Enters edge" block="enters"
         Enters = 1,
     }
 
     export enum FrontLed {
-        //% blockid="Front LED left" block="left"
+        //% blockId="Front LED left" block="left"
         Left = 0,
-        //% blockid="Front LED right" block="right"
+        //% blockId="Front LED right" block="right"
         Right = 1,
     }
 
     export enum AllServos {
-        //% blockid="Servo S1" block="S1"
+        //% blockId="Servo S1" block="S1"
         S1 = 0,
-        //% blockid="Servo S2" block="S2"
+        //% blockId="Servo S2" block="S2"
         S2 = 1,
-        //% blockid="Servo P0" block="P0"
+        //% blockId="Servo P0" block="P0"
         P0 = 2,
-        //% blockid="Servo P1" block="P1"
+        //% blockId="Servo P1" block="P1"
         P1 = 3,
-        //% blockid="Servo P2" block="P2"
+        //% blockId="Servo P2" block="P2"
         P2 = 4,
     }
 
     export enum MicrobitServos {
-        //% blockid="Servo P0" block="P0"
+        //% blockId="Servo P0" block="P0"
         P0 = 2,
-        //% blockid="Servo P1" block="P1"
+        //% blockId="Servo P1" block="P1"
         P1 = 3,
-        //% blockid="Servo P2" block="P2"
+        //% blockId="Servo P2" block="P2"
         P2 = 4,
     }
 
