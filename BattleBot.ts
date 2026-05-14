@@ -109,7 +109,7 @@ namespace battle_bot {
     //% group="Driving"
     //% stickX.min=-100 stickX.max=100
     //% stickY.min=-100 stickY.max=100
-    //% stickX.shadow="battle_bot_getStick"
+    //% stickX.shadow="battle_bot_getStickX"
     //% stickY.shadow="battle_bot_getStickY"
     export function calculateMotorSpeed(motor: Motor, stickX: number, stickY: number): number {
         // Convert percentages to scalars for math
@@ -161,27 +161,27 @@ namespace battle_bot {
     }
 
     /**
-     * Get the joystick position. Returns a number from -100 to 100.
+     * Get the joystick X position. Returns a number from -100 to 100.
      */
+    //% blockId=battle_bot_getStickX
     //% block="joystick %axis"
     //% group="Controller"
-    //% axis.defl=StickAxis.X
-    export function getStick(axis: StickAxis): number {
+    export function getStickX(axis: StickAxis): number {
         if (axis == StickAxis.X) return stickX * 100;
         if (axis == StickAxis.Y) return stickY * 100;
         return undefined;
     }
 
     /**
-     * Get the joystick Y position. Alias for getStick with Y default.
+     * Get the joystick Y position. Returns a number from -100 to 100.
      */
-    //% blockId="battle_bot_getStickY"
+    //% blockId=battle_bot_getStickY
     //% block="joystick %axis"
     //% group="Controller"
-    //% axis.defl=StickAxis.Y
-    //% blockAliasFor="battle_bot.getStick"
-    export function _getStickY(axis: StickAxis): number {
-        return getStick(axis);
+    export function getStickY(axis: StickAxisYFirst): number {
+        if (axis == StickAxisYFirst.X) return stickX * 100;
+        if (axis == StickAxisYFirst.Y) return stickY * 100;
+        return undefined;
     }
 
     /**
@@ -460,6 +460,13 @@ namespace battle_bot {
         X,
         //% blockId="Stick Y Axis" block="Y"
         Y,
+    }
+
+    export enum StickAxisYFirst {
+        //% blockId="Stick Y Axis" block="Y"
+        Y,
+        //% blockId="Stick X Axis" block="X"
+        X,
     }
 
     export enum StickAxisAdvanced {
