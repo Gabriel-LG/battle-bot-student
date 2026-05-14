@@ -47,7 +47,7 @@ namespace battle_bot {
     }
 
     /**
-     * Set how fast a motor spins. The speed is automatically converted for smooth movement.
+     * Set how fast a motor spins.
      */
     //% block="set %motor motor speed to %speed \\%"
     //% group="Driving"
@@ -84,7 +84,7 @@ namespace battle_bot {
     /**
      * Convert a speed value to motor power for smooth movement. For advanced users.
      */
-    //% block="convert speed %speed \\% to power"
+    //% block="convert %speed \\% speed to power \\%"
     //% group="Driving"
     //% speed.min=-100 speed.max=100
     //% advanced=true
@@ -103,7 +103,7 @@ namespace battle_bot {
     }
 
     /**
-     * Figure out how fast a motor should spin based on the joystick position.
+     * Calculate how fast the motor should spin based on the joystick position.
      */
     //% block="calculate %motor motor speed using %stickX and %stickY"
     //% group="Driving"
@@ -153,7 +153,7 @@ namespace battle_bot {
     /**
      * Do something when a controller button is pressed or released.
      */
-    //% block="on button %button %state"
+    //% block="when button %button is %state"
     //% group="Controller"
     export function onButtonPress(button: Button, state: ButtonState, handler: () => void): void {
         if (state == ButtonState.pressed) buttonHandlers[button].setHandler = handler;
@@ -198,9 +198,9 @@ namespace battle_bot {
     }
 
     /**
-     * Move a servo to an angle (0 to 180 degrees).
+     * Move a servo to a position (0° to 180°).
      */
-    //% block="set servo %servo to %angle degrees"
+    //% block="move servo %servo to %angle °"
     //% group=Servos
     //% angle.min=0 angle.max=180 angle.defl=90
     export function moveServo(servo: AllServos, angle: number): void
@@ -231,7 +231,7 @@ namespace battle_bot {
     }
 
     /**
-     * Get the current angle of a servo (0 to 180 degrees).
+     * Get the current position of a servo (0° to 180°).
      */
     //% block="servo %servo position"
     //% group=Servos
@@ -241,7 +241,7 @@ namespace battle_bot {
     }
 
     /**
-     * Turn off a servo so you can move it by hand.
+     * Turn off the servo so you can move it by hand.
      */
     //% block="disable servo %servo"
     //% group=Servos
@@ -287,7 +287,7 @@ namespace battle_bot {
     /**
      * Measure distance using the ultrasonic sensor. Returns distance in centimeters (or 500 if nothing detected).
      */
-    // % blockId=ultrasonic_sensor 
+    //% blockId=ultrasonic_sensor 
     //% block="read ultrasonic sensor in cm"
     //% group="Sensors"
     export function Ultrasonic(): number {
@@ -350,7 +350,7 @@ namespace battle_bot {
     /* **************** end copied from DFRobot Maqueen extension ****************** */
 
     /**
-     * Check if a line sensor sees a dark line.
+     * Check if the line sensor sees a white surface.
      */
     //% block="%sensor line sensor detects line"
     //% group=Sensors
@@ -365,9 +365,9 @@ namespace battle_bot {
     }
 
     /**
-     * Do something when a line sensor finds or loses a line.
+     * Do something when the line sensor finds or loses a white surface.
      */
-    //% block="on %sensor line sensor %event"
+    //% block="when %sensor line sensor %event white"
     //% group=Sensors
     export function onLineSensor(sensor: LineSensor, event: LineSensorEvents, handler: ()=>void): void {
         //let event = line ? PinEvent.Rise : PinEvent.Fall;
@@ -392,9 +392,9 @@ namespace battle_bot {
     }
 
     /**
-     * Set up the colorful LED strip (4 LEDs). Use the strip variable to change colors.
+     * Set up the (4) RGB LEDs. Use Neopixel to set colors
      */
-    //% block="initialize LED strip"
+    //% block="RGB lights"
     //% group=Lights
     //% blockSetVariable=strip
     export function initLeds(): neopixel.Strip {
@@ -415,7 +415,7 @@ namespace battle_bot {
     /**
      * Do something when your robot wins! Make it dance, flash lights, or play sounds.
      */
-    //% block="on victory"
+    //% block="victory"
     //% group=Victory
     export function onVictory(handler: () => void): void {
         victoryHandler.setHandler = handler;
