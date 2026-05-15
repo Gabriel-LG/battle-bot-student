@@ -15,6 +15,6 @@ let strip: neopixel.Strip = null
 battlebot.initBattleBot(0)
 strip = battlebot.initLeds()
 basic.forever(function () {
-    battlebot.setMotorSpeed(battlebot.Motor.Left, battlebot.calculateMotorSpeed(battlebot.Motor.Left, battlebot._getStickX(), battlebot._getStickY()))
-    battlebot.setMotorSpeed(battlebot.Motor.Right, battlebot.calculateMotorSpeed(battlebot.Motor.Right, battlebot._getStickX(), battlebot._getStickY()))
+    battlebot.setMotorSpeed(battlebot.Motor.Right, -1 * battlebot.calculateMotorSpeed(battlebot.Motor.Left, battlebot._getStickX(), battlebot._getStickY()))
+    battlebot.setMotorSpeed(battlebot.Motor.Left, -1 * battlebot.calculateMotorSpeed(battlebot.Motor.Right, battlebot._getStickX(), battlebot._getStickY()))
 })

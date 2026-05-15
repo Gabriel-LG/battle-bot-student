@@ -30,9 +30,9 @@ namespace battlebot {
     }
 
     export enum ButtonState {
-        //% block="Pressed"
+        //% block="pressed"
         pressed = 0,
-        //% block="Released"
+        //% block="released"
         released = 1,
     }
 
@@ -44,37 +44,37 @@ namespace battlebot {
     }
 
     export enum StickAxisAdvanced {
-        //% block="Magnitude"
+        //% block="magnitude"
         Magnitude,
-        //% block="Angle"
+        //% block="angle"
         Angle,
     }
 
     export enum Motor {
-        //% block="Left"
+        //% block="left"
         Left = 0,
-        //% block="Right"
+        //% block="right"
         Right = 2,
     }
 
     export enum LineSensor {
-        //% block="Left"
+        //% block="left"
         Left = 0,
-        //% block="Right"
+        //% block="right"
         Right = 2,
     }
 
     export enum LineSensorEvents {
-        //% block="Leaves"
+        //% block="leaves"
         Leaves = 0,
-        //% block="Enters"
+        //% block="sees"
         Enters = 1,
     }
 
     export enum FrontLed {
-        //% block="Left"
+        //% block="front-left"
         Left = 0,
-        //% block="Right"
+        //% block="front-right"
         Right = 1,
     }
 
@@ -533,7 +533,7 @@ namespace battlebot {
     /**
      * Check if the the robot is on the arena edge.
      */
-    //% block="%sensor side is on the edge"
+    //% block="%sensor sensor sees the edge"
     //% group=Sensors
     //% weight=140
     export function readLineSensor(sensor: LineSensor): boolean {
@@ -549,7 +549,7 @@ namespace battlebot {
     /**
      * Do something when the arena edge is detected.
      */
-    //% block="when %sensor side %event the edge"
+    //% block="when the %sensor sensor %event the edge"
     //% group=Sensors
     //% weight=130
     export function onLineSensor(sensor: LineSensor, event: LineSensorEvents, handler: () => void): void {
@@ -569,7 +569,7 @@ namespace battlebot {
     /**
      * Turn the front LED on or off.
      */
-    //% block="set %led front LED %on"
+    //% block="set %led LED %on"
     //% group=Lights
     //% on.shadow="toggleOnOff"
     //% weight=85
