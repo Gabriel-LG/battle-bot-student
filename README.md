@@ -1,22 +1,14 @@
+# battlebot
 
-> Open deze pagina op [https://gabriel-lg.github.io/battle-bot-student/](https://gabriel-lg.github.io/battle-bot-student/)
+Build your own real battle bot and challenge your classmates!
+This extension contains everything you need to program your battle bot.
+Use the controller you received to control your battle bot.
 
-## Gebruiken als extensie
+## for teachers
 
-Deze repository kan worden toegevoegd als **extensie** in MakeCode.
-
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* klik op **Nieuw project**
-* klik op **Extensies** onder het tandwielmenu
-* zoeken naar **https://github.com/gabriel-lg/battle-bot-student** en importeren
-
-## Dit project bewerken
-
-Om deze repository te bewerken in MakeCode.
-
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* klik op **Importeren** en klik vervolgens op **Importeer URL**
-* plak **https://github.com/gabriel-lg/battle-bot-student** en klik op importeren
+This project contains 3D printable models to interface a DFRobot Maqueen Lite and MG90S servos with Lego Technic bricks.
+The battlebot controller project is used to control the battle bot.
+For teachers, the teacher tool is used to manage the competition and to silence **all** battlebots with the click of a button. The teacher tool is also used to assign the controller IDs.
 
 #### Metadata (gebruikt voor zoeken, rendering)
 
