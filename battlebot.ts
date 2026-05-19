@@ -200,6 +200,7 @@ namespace battlebot {
     let restoreVolume: number = 0;
     let blockSound: boolean = false;
     let blockDrive: boolean = false;
+    let blockServos: boolean = false;
     let victoryHandler: BooleanStateHandler = new BooleanStateHandler;
 
     let servoPositions: { [key: number]: number } =
@@ -221,11 +222,12 @@ namespace battlebot {
      * Enter your controller number here.
      */
     //% block="connect to controller %id"
-    //% id.min=0 id.max=15
+    //% id.min=0 id.max=41
     //% weight=200
     export function initBattleBot(id: number): void {
+        if(!(id >= 0 && id <= 41)) id = 0; //the ID must be in range, assume 0 otherwise
         radio.setGroup(0);
-        radio.setFrequencyBand(id * 5);
+        radio.setFrequencyBand(id * 2);
 
         radio.onReceivedBuffer((buffer: Buffer) => {
             let id = buffer.getUint8(0);
@@ -433,6 +435,7 @@ namespace battlebot {
     //% angle.min=0 angle.max=180 angle.defl=90
     //% weight=110
     export function moveServo(servo: AllServos, angle: number): void {
+        if (blockServos) return;
         if (angle > 180) angle = 180;
         if (angle < 0) angle = 0;
 
@@ -682,6 +685,11 @@ namespace battlebot {
                 setMotorRawPower(Motor.Left, 0);
                 setMotorRawPower(Motor.Right, 0);
             }
+            if (blockServos) {
+                disableServo(MicrobitServos.P0);
+                disableServo(MicrobitServos.P1);
+                disableServo(MicrobitServos.P2);
+            }
             if (blockSound) {
                 music.setVolume(0);
             }
@@ -738,6 +746,7 @@ namespace battlebot {
 
         let soundFlag: boolean = (flags & 0x01) != 0;
         let driveFlag: boolean = (flags & 0x02) != 0;
+        let servoFlag: boolean = (flags & 0x04) != 0;
         let victoryFlag: boolean = (flags & 0x80) != 0;
 
         if (soundFlag && !blockSound) {
@@ -751,5 +760,6 @@ namespace battlebot {
 
         blockSound = soundFlag;
         blockDrive = driveFlag;
+        blockServos = servoFlag;
     }
 }
