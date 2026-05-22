@@ -43,5 +43,7 @@
   "battlebot.initLeds": "Stel de (4) RGB LEDs in. Gebruik Neopixel om kleuren in te stellen.",
   "battlebot.testVictory": "Test je overwinningsviering zonder echt te hoeven winnen.",
   "battlebot.onVictory|param|handler": "Code die wordt uitgevoerd",
-  "battlebot.onVictory": "Doe iets wanneer je robot wint!"
+  "battlebot.onVictory": "Doe iets wanneer je robot wint!",
+  "battlebot.startBackgroundTask": "Start een helper die code uitvoerd in de achtergrond",
+  "battlebot.waitForBackgroundTasks": "Wacht tot alle achtergrond helpers klaar zijn"
 }

@@ -19,6 +19,8 @@
   "battlebot.initLeds|block": "RGB onderzijde",
   "battlebot.testVictory|block": "test overwinning",
   "battlebot.onVictory|block": "bij overwinning",
+  "battlebot.runBackgroundTask|block": "start taak in de achtergrond",
+  "battlebot.waitForBackgroundTasks|block": "wacht op alle achtergrond taken",
   "battlebot.Button.A|block": "A",
   "battlebot.Button.B|block": "B",
   "battlebot.Button.C|block": "C",

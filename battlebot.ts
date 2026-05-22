@@ -214,6 +214,8 @@ namespace battlebot {
 
     let state1 = 0; // ultrasonic sensor state
 
+    let parallelTaskCount: number = 0; //the number of parallel tasks currently running.
+
     // ============================================
     // PUBLIC FUNCTIONS - INITIALIZATION
     // ============================================
@@ -254,7 +256,7 @@ namespace battlebot {
             lineSensorRightHandler.setState(false);
         });
 
-        control.runInParallel(backGroundTask);
+        control.runInParallel(serviceTask);
         started = true;
     }
 
@@ -618,6 +620,36 @@ namespace battlebot {
     }
 
     // ============================================
+    // PUBLIC FUNCTIONS - MISC
+    // ============================================
+    
+    /**
+     * Start a helper to run this code, in the background.
+     */
+    //% block="run task in the background"
+    //% handlerStatement=true   
+    //% advanced=true
+    //% weight=10
+    export function runBackgroundTask(task: () => void) : void {
+        parallelTaskCount++;
+        control.runInParallel( () => {
+            task();
+            parallelTaskCount--;
+        } );
+    }
+
+
+    /**
+     * Wait until all background helpers are finished.
+     */
+    //% block="wait for all background tasks"
+    //% advanced=true
+    //% weight=0
+    export function waitForBackgroundTasks() : void {
+        while(parallelTaskCount > 0) pause(20);
+    }
+
+    // ============================================
     // PRIVATE HELPER FUNCTIONS
     // ============================================
 
@@ -679,7 +711,7 @@ namespace battlebot {
      * 
      * This ensures students cannot bypass teacher controls.
      */
-    function backGroundTask(): void {
+    function serviceTask(): void {
         while (true) {
             if (blockDrive) {
                 setMotorRawPower(Motor.Left, 0);
